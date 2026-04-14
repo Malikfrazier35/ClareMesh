@@ -1,8 +1,29 @@
+@import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Instrument+Sans:wght@700;800&display=swap');
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@theme {
+  --color-slate-50: #E8EEF0;
+  --color-slate-100: #C8D6DB;
+  --color-slate-200: #A3B8C0;
+  --color-slate-400: #4F6D7A;
+  --color-slate-600: #3A5361;
+  --color-slate-800: #253D48;
+  --color-slate-900: #162A33;
+  --color-warm-white: #FAFAF8;
+  --color-warm-50: #F5F4F0;
+  --color-warm-100: #E8E6E0;
+  --color-warm-200: #D4D1C9;
+  --color-warm-400: #9C998F;
+  --color-warm-600: #6B6860;
+  --color-warm-800: #3D3B36;
+  --color-warm-900: #1E1D1A;
+  --color-copper: #9D7356;
+  --color-copper-light: #F2ECE6;
+  --color-copper-dark: #7A5C43;
+  --font-display: "Instrument Sans", sans-serif;
+  --font-body: "DM Sans", sans-serif;
+  --font-mono: "Geist Mono", monospace;
+}
 
 :root {
   --slate: #4F6D7A;
@@ -31,19 +52,4 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* 0px border radius globally */
 *, *::before, *::after { border-radius: 0 !important; }
-
-.section-label {
-  font-family: "Geist Mono", monospace;
-  font-size: 10px;
-  letter-spacing: 2.5px;
-  text-transform: uppercase;
-  color: var(--warm-400);
-}
-
-.bracket-label {
-  font-family: "Geist Mono", monospace;
-  font-size: 11px;
-  color: var(--slate);
-}

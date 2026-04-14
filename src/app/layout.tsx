@@ -5,15 +5,6 @@ export const metadata: Metadata = {
   title: "ClareMesh — Clarity through connection",
   description:
     "An open-source financial data schema and bi-directional sync SDK that runs on your own infrastructure.",
-  keywords: [
-    "financial data",
-    "normalization",
-    "bi-directional sync",
-    "plaid",
-    "quickbooks",
-    "stripe",
-    "fintech infrastructure",
-  ],
 };
 
 export default function RootLayout({
@@ -24,6 +15,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
           href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Instrument+Sans:wght@700;800&display=swap"
           rel="stylesheet"
