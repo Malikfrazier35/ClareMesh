@@ -1,63 +1,60 @@
 @import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Instrument+Sans:wght@400;500;600;700&display=swap');
 
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; border-radius: 0 !important; }
-html { scroll-behavior: smooth; }
-body { font-family: "DM Sans", "Segoe UI", "Helvetica Neue", Arial, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; background: #FAFAF8; color: #1E1D1A; }
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;border-radius:0!important}
+html{scroll-behavior:smooth}
+body{font-family:"DM Sans","Segoe UI","Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;background:#E2E0D8;color:#1E1D1A}
 
-@keyframes cmFadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes cmFadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes cmDrift { 0% { transform: translateX(0); } 50% { transform: translateX(-14px); } 100% { transform: translateX(0); } }
-@keyframes cmBlink { 0%,50% { opacity: 1; } 51%,100% { opacity: 0; } }
-@keyframes cmAccent { from { width: 0; } to { width: 40px; } }
+@keyframes cmFadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+@keyframes cmFadeIn{from{opacity:0}to{opacity:1}}
+@keyframes cmDrift{0%{transform:translateX(0)}50%{transform:translateX(-18px)}100%{transform:translateX(0)}}
+@keyframes cmBlink{0%,50%{opacity:1}51%,100%{opacity:0}}
+@keyframes cmAccent{from{width:0}to{width:40px}}
+@keyframes cmPulse{0%,100%{opacity:.03}50%{opacity:.06}}
 
-.cm-a1 { animation: cmFadeUp 0.7s ease both 0.1s; }
-.cm-a2 { animation: cmFadeUp 0.7s ease both 0.25s; }
-.cm-a3 { animation: cmFadeUp 0.7s ease both 0.4s; }
-.cm-a4 { animation: cmFadeUp 0.7s ease both 0.55s; }
-.cm-a5 { animation: cmFadeIn 0.8s ease both 0.8s; }
-.cm-topo { animation: cmDrift 20s ease-in-out infinite; }
-.cm-blink { animation: cmBlink 1s step-end infinite; }
-.cm-acc { animation: cmAccent 0.8s ease both 0.6s; }
+.cm-a1{animation:cmFadeUp .7s ease both .15s}
+.cm-a2{animation:cmFadeUp .7s ease both .3s}
+.cm-a3{animation:cmFadeUp .7s ease both .45s}
+.cm-a4{animation:cmFadeUp .7s ease both .6s}
+.cm-a5{animation:cmFadeUp .7s ease both .8s}
+.cm-topo{animation:cmDrift 24s ease-in-out infinite}
+.cm-pulse{animation:cmPulse 8s ease-in-out infinite}
+.cm-blink{animation:cmBlink 1s step-end infinite}
+.cm-acc{animation:cmAccent .8s ease both .5s}
 
-.cm-rv { opacity: 0; transform: translateY(20px); transition: opacity 0.65s ease, transform 0.65s ease; }
-.cm-rv.vis { opacity: 1; transform: translateY(0); }
+.cm-rv{opacity:0;transform:translateY(20px);transition:opacity .65s ease,transform .65s ease}
+.cm-rv.vis{opacity:1;transform:translateY(0)}
 
-.cm-sg > *:nth-child(1) { transition-delay: 0.05s; }
-.cm-sg > *:nth-child(2) { transition-delay: 0.1s; }
-.cm-sg > *:nth-child(3) { transition-delay: 0.15s; }
-.cm-sg > *:nth-child(4) { transition-delay: 0.2s; }
-.cm-sg > *:nth-child(5) { transition-delay: 0.25s; }
-.cm-sg > *:nth-child(6) { transition-delay: 0.3s; }
+.cm-sg>*:nth-child(1){transition-delay:50ms}
+.cm-sg>*:nth-child(2){transition-delay:.1s}
+.cm-sg>*:nth-child(3){transition-delay:.15s}
+.cm-sg>*:nth-child(4){transition-delay:.2s}
+.cm-sg>*:nth-child(5){transition-delay:.25s}
+.cm-sg>*:nth-child(6){transition-delay:.3s}
 
-.cm-cell { transition: background 0.25s ease; }
-.cm-cell:hover { background: #FFFFFF; }
-.cm-layer { transition: transform 0.2s ease; }
-.cm-layer:hover { transform: translateX(4px); }
+.cm-cell{transition:background .2s ease,box-shadow .2s ease}
+.cm-cell:hover{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.cm-layer{transition:transform .2s ease}
+.cm-layer:hover{transform:translateX(4px)}
+.cm-bp{transition:opacity .2s ease,transform .15s ease}
+.cm-bp:hover{opacity:.88;transform:translateY(-1px)}
+.cm-bp:active{transform:translateY(0)}
+.cm-bg{transition:background .2s ease,border-color .2s ease,transform .15s ease}
+.cm-bg:hover{background:#fff;border-color:#D4D1C9;transform:translateY(-1px)}
+.cm-bg:active{transform:translateY(0)}
+.cm-nl{position:relative;transition:color .2s ease}
+.cm-nl::after{content:"";position:absolute;bottom:-3px;left:0;width:0;height:1px;background:#4F6D7A;transition:width .25s ease}
+.cm-nl:hover{color:#1E1D1A!important}
+.cm-nl:hover::after{width:100%}
+.cm-fl{transition:color .2s ease}
+.cm-fl:hover{color:#1E1D1A!important}
+.cm-tr{transition:background .2s ease}
+.cm-tr:hover{background:#F5F4F0}
+.cm-pc{transition:background .2s ease,box-shadow .2s ease}
+.cm-pc:hover{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.04)}
 
-.cm-bp { transition: opacity 0.2s ease, transform 0.15s ease; }
-.cm-bp:hover { opacity: 0.9; transform: translateY(-1px); }
-.cm-bp:active { transform: translateY(0); }
-.cm-bg { transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease; }
-.cm-bg:hover { background: #FFFFFF; border-color: #D4D1C9; transform: translateY(-1px); }
-.cm-bg:active { transform: translateY(0); }
-
-.cm-nl { position: relative; transition: color 0.2s ease; }
-.cm-nl::after { content: ""; position: absolute; bottom: -4px; left: 0; width: 0; height: 1px; background: #4F6D7A; transition: width 0.25s ease; }
-.cm-nl:hover { color: #1E1D1A !important; }
-.cm-nl:hover::after { width: 100%; }
-
-.cm-fl { transition: color 0.2s ease; }
-.cm-fl:hover { color: #1E1D1A !important; }
-
-.cm-tr { transition: background 0.2s ease; }
-.cm-tr:hover { background: #F5F4F0; }
-
-.cm-pc { transition: background 0.25s ease; }
-.cm-pc:hover { background: #FFFFFF; }
-
-::selection { background: #C8D6DB; color: #162A33; }
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #F5F4F0; }
-::-webkit-scrollbar-thumb { background: #D4D1C9; }
-::-webkit-scrollbar-thumb:hover { background: #9C998F; }
+::selection{background:#C8D6DB;color:#162A33}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:#E2E0D8}
+::-webkit-scrollbar-thumb{background:#C4C2BA}
+::-webkit-scrollbar-thumb:hover{background:#9C998F}
