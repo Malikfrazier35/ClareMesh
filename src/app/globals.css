@@ -1,0 +1,49 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Instrument+Sans:wght@700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --slate: #4F6D7A;
+  --slate-light: #E8EEF0;
+  --slate-800: #253D48;
+  --slate-900: #162A33;
+  --warm-white: #FAFAF8;
+  --warm-50: #F5F4F0;
+  --warm-100: #E8E6E0;
+  --warm-200: #D4D1C9;
+  --warm-400: #9C998F;
+  --warm-600: #6B6860;
+  --warm-800: #3D3B36;
+  --warm-900: #1E1D1A;
+  --copper: #9D7356;
+  --copper-light: #F2ECE6;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: "DM Sans", sans-serif;
+  background: var(--warm-white);
+  color: var(--warm-900);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 0px border radius globally */
+*, *::before, *::after { border-radius: 0 !important; }
+
+.section-label {
+  font-family: "Geist Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--warm-400);
+}
+
+.bracket-label {
+  font-family: "Geist Mono", monospace;
+  font-size: 11px;
+  color: var(--slate);
+}
