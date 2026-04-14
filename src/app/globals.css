@@ -3,17 +3,18 @@
 
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;border-radius:0!important}
 html{scroll-behavior:smooth}
-body{font-family:"DM Sans","Segoe UI","Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;background:#141312;color:#1E1D1A}
+body{font-family:"DM Sans","Segoe UI","Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;background:#E2E0D8;color:#1E1D1A}
 
 @keyframes cmFadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
 @keyframes cmScan{0%{top:-2px}100%{top:100%}}
-@keyframes cmDrift{0%{transform:translateX(0)}50%{transform:translateX(-14px)}100%{transform:translateX(0)}}
+@keyframes cmDrift{0%{transform:translateX(0)}50%{transform:translateX(-18px)}100%{transform:translateX(0)}}
 @keyframes cmBlink{0%,50%{opacity:1}51%,100%{opacity:0}}
 @keyframes cmAccent{from{width:0}to{width:40px}}
 @keyframes cmPulse{0%,100%{opacity:.6}50%{opacity:1}}
-@keyframes cmFloat1{0%{transform:translate(0,0);opacity:.1}50%{opacity:.15}100%{transform:translate(30px,-200px);opacity:0}}
-@keyframes cmFloat2{0%{transform:translate(0,0);opacity:.08}50%{opacity:.12}100%{transform:translate(-25px,-220px);opacity:0}}
-@keyframes cmFloat3{0%{transform:translate(0,0);opacity:.09}50%{opacity:.14}100%{transform:translate(18px,-180px);opacity:0}}
+@keyframes cmWallPulse{0%,100%{opacity:.035}50%{opacity:.065}}
+@keyframes cmFloat1{0%{transform:translate(0,0);opacity:.1}100%{transform:translate(40px,-600px);opacity:0}}
+@keyframes cmFloat2{0%{transform:translate(0,0);opacity:.08}100%{transform:translate(-35px,-700px);opacity:0}}
+@keyframes cmFloat3{0%{transform:translate(0,0);opacity:.09}100%{transform:translate(25px,-500px);opacity:0}}
 
 .cm-a1{animation:cmFadeUp .7s ease both .2s}
 .cm-a2{animation:cmFadeUp .7s ease both .35s}
@@ -21,10 +22,14 @@ body{font-family:"DM Sans","Segoe UI","Helvetica Neue",Arial,sans-serif;-webkit-
 .cm-a4{animation:cmFadeUp .7s ease both .65s}
 .cm-a5{animation:cmFadeUp .7s ease both .85s}
 .cm-scan{animation:cmScan 6s linear infinite}
-.cm-topo{animation:cmDrift 20s ease-in-out infinite}
+.cm-topo{animation:cmDrift 24s ease-in-out infinite}
+.cm-wallpulse{animation:cmWallPulse 8s ease-in-out infinite}
 .cm-blink{animation:cmBlink 1s step-end infinite}
 .cm-acc{animation:cmAccent .8s ease both .4s}
 .cm-pulse{animation:cmPulse 2s ease-in-out infinite}
+.cm-f1{animation:cmFloat1 22s linear infinite}
+.cm-f2{animation:cmFloat2 26s linear infinite}
+.cm-f3{animation:cmFloat3 20s linear infinite}
 
 .cm-rv{opacity:0;transform:translateY(20px);transition:opacity .65s ease,transform .65s ease}
 .cm-rv.vis{opacity:1;transform:translateY(0)}
@@ -43,13 +48,10 @@ body{font-family:"DM Sans","Segoe UI","Helvetica Neue",Arial,sans-serif;-webkit-
 .cm-nl-d::after{background:rgba(250,250,248,.3)}.cm-nl-d:hover{color:#FAFAF8!important}.cm-nl-d:hover::after{width:100%}
 .cm-nl-l::after{background:#4F6D7A}.cm-nl-l:hover{color:#1E1D1A!important}.cm-nl-l:hover::after{width:100%}
 .cm-fl-d{transition:color .2s}.cm-fl-d:hover{color:#9C998F!important}
-.cm-fl-l{transition:color .2s}.cm-fl-l:hover{color:#1E1D1A!important}
 .cm-pc{transition:background .2s,box-shadow .2s}.cm-pc:hover{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.04)}
-.cm-tr{transition:background .2s}.cm-tr:hover{background:#F5F4F0}
-.cm-df{position:absolute;pointer-events:none;white-space:nowrap}
 
 ::selection{background:#C8D6DB;color:#162A33}
 ::-webkit-scrollbar{width:6px}
-::-webkit-scrollbar-track{background:#1E1D1A}
-::-webkit-scrollbar-thumb{background:#3D3B36}
-::-webkit-scrollbar-thumb:hover{background:#6B6860}
+::-webkit-scrollbar-track{background:#E2E0D8}
+::-webkit-scrollbar-thumb{background:#C4C2BA}
+::-webkit-scrollbar-thumb:hover{background:#9C998F}
