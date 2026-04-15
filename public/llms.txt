@@ -1,0 +1,41 @@
+# ClareMesh
+
+> Financial data normalization and bi-directional sync infrastructure.
+
+ClareMesh is an open-core platform that normalizes financial data from multiple providers (Plaid, Stripe, QuickBooks, Xero, CSV) into a canonical schema with 5 objects: Account, Transaction, Entity, Balance, and Forecast.
+
+## Core Concepts
+
+- Schema: 5 canonical objects with TypeScript types, Zod validation, and JSON Schema
+- Transforms: Provider-to-ClareMesh normalization functions handling edge cases (Plaid sign flip, Stripe cents-to-dollars, QB JournalEntry explosion, Xero /Date() parsing)
+- Sync: Bi-directional data sync between connectors with conflict resolution
+- Compliance: 29 controls across 10 frameworks (SOC 2, GDPR, CCPA, PCI, SOX, PDPL, LGPD, APPI, UK-GDPR, PIPL), 17 jurisdictions
+
+## Quick Start
+
+```
+npm install @claremesh/transforms
+import { transformPlaid } from '@claremesh/transforms/plaid'
+const normalized = transformPlaid(yourPlaidData)
+```
+
+## API
+
+- Transform: POST https://ddevkorgiutduydelhgv.supabase.co/functions/v1/transform
+- Schema Registry: GET https://ddevkorgiutduydelhgv.supabase.co/functions/v1/schema-registry (public, no auth)
+- Compliance: GET https://ddevkorgiutduydelhgv.supabase.co/functions/v1/compliance-dashboard
+
+## Pricing
+
+- Open: $0/mo — 1 connector, 1K transforms/mo
+- Build: $199/mo — 5 connectors, 50K transforms/mo, 4 compliance controls
+- Scale: $799/mo — unlimited connectors, 500K transforms/mo, bi-directional sync, 14 controls
+- Enterprise: custom — dedicated infrastructure, 29 controls, SSO, custom SLA
+
+## Links
+
+- Website: https://claremesh.com
+- Pricing: https://claremesh.com/pricing
+- Schema Browser: https://claremesh.com/schema
+- GitHub: https://github.com/Malikfrazier35/ClareMesh
+

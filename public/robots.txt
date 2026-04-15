@@ -1,0 +1,40 @@
+# ClareMesh — Financial Data Normalization Infrastructure
+# https://claremesh.com
+
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /onboarding
+Disallow: /settings
+Disallow: /auth/
+Disallow: /api/
+
+# AI Crawlers — schema docs are open, app is private
+User-agent: GPTBot
+Allow: /
+Allow: /schema
+Allow: /pricing
+Allow: /docs
+Disallow: /dashboard
+Disallow: /settings
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: PetalBot
+Disallow: /
+
+Sitemap: https://claremesh.com/sitemap.xml
+
