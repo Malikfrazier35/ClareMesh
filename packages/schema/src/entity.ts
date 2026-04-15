@@ -7,7 +7,7 @@ export const EntitySchema = z.object({
   type: z.enum(['vendor', 'customer', 'employee', 'institution']),
   tax_id: z.string().optional(),
   aliases: z.array(z.string()).default([]),
-  metadata: z.record(z.unknown()).default({}),
+  metadata: z.record(z.string(), z.unknown()).default({}),
   created_at: z.string().datetime(),
 });
 

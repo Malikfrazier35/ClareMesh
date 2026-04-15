@@ -12,7 +12,7 @@ export const TransactionSchema = z.object({
   category: z.string().optional(),
   status: z.enum(['pending', 'posted', 'void']),
   entity_id: z.string().uuid().optional(),
-  metadata: z.record(z.unknown()).default({}),
+  metadata: z.record(z.string(), z.unknown()).default({}),
   created_at: z.string().datetime(),
 });
 

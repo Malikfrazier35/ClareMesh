@@ -10,7 +10,7 @@ export const AccountSchema = z.object({
   currency: z.string().regex(/^[A-Z]{3}$/),
   parent_id: z.string().uuid().optional(),
   institution_name: z.string().optional(),
-  metadata: z.record(z.unknown()).default({}),
+  metadata: z.record(z.string(), z.unknown()).default({}),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
 });
