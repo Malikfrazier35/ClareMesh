@@ -1,0 +1,28 @@
+{
+  "name": "@claremesh/transforms",
+  "version": "1.0.0",
+  "description": "Provider-specific financial data transforms — Plaid, Stripe, QuickBooks, Xero, CSV → ClareMesh schema",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./plaid": "./dist/providers/plaid.js",
+    "./stripe": "./dist/providers/stripe.js",
+    "./quickbooks": "./dist/providers/quickbooks.js",
+    "./xero": "./dist/providers/xero.js",
+    "./csv": "./dist/providers/csv.js"
+  },
+  "files": ["dist"],
+  "license": "MIT",
+  "repository": { "type": "git", "url": "https://github.com/Malikfrazier35/ClareMesh" },
+  "homepage": "https://claremesh.com/docs",
+  "keywords": ["financial-data", "transforms", "plaid", "stripe", "quickbooks", "xero", "csv", "normalization"],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run"
+  },
+  "dependencies": { "@claremesh/schema": "^1.0.0" },
+  "peerDependencies": { "zod": "^3.22.0" },
+  "devDependencies": { "typescript": "^5.4.0", "zod": "^3.22.0", "vitest": "^1.0.0" }
+}
+

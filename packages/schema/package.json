@@ -1,0 +1,19 @@
+{
+  "name": "@claremesh/schema",
+  "version": "1.0.0",
+  "description": "Canonical financial data schema — 5 objects, TypeScript types, Zod validation",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
+  "license": "MIT",
+  "repository": { "type": "git", "url": "https://github.com/Malikfrazier35/ClareMesh" },
+  "homepage": "https://claremesh.com/docs",
+  "keywords": ["financial-data", "schema", "plaid", "stripe", "quickbooks", "xero", "normalization", "typescript"],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run"
+  },
+  "peerDependencies": { "zod": "^3.22.0" },
+  "devDependencies": { "typescript": "^5.4.0", "zod": "^3.22.0", "vitest": "^1.0.0" }
+}
+
