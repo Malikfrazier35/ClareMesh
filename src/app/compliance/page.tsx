@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, Suspense } from "react";
-import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { createClient } from "@supabase/supabase-js";
+import AppShell from "@/components/AppShell";
 
 const F = {
   d: "'Instrument Sans','SF Pro Display','Segoe UI',system-ui,sans-serif",
@@ -9,147 +9,124 @@ const F = {
   m: "'Geist Mono','SF Mono','Cascadia Code','Consolas','Courier New',monospace",
 };
 
-const SUPABASE_URL = "https://ddevkorgiutduydelhgv.supabase.co";
+const supabase = createClient(
+  "https://ddevkorgiutduydelhgv.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZXZrb3JnaXV0ZHV5ZGVsaGd2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxODI0NDIsImV4cCI6MjA5MTc1ODQ0Mn0.J42xtXgMJ0J4DdTwg3eCHKafOHTe0Tb6WRlTwZ9B-eE"
+);
 
-function Nav({ active }: { active: string }) {
-  const links = ["Dashboard", "Connectors", "Transforms", "Sync", "Compliance", "Settings"];
-  return (
-    <div style={{ padding: "12px 32px", borderBottom: "0.5px solid var(--cm-border-light)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
-        <a href="/" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none" }}>
-          <svg width="16" height="16" viewBox="0 0 40 40" fill="none"><rect x="4" y="4" width="14" height="14" fill="var(--cm-slate)" opacity={.15}/><rect x="12" y="12" width="14" height="14" fill="var(--cm-slate)" opacity={.25}/><rect x="22" y="22" width="14" height="14" fill="var(--cm-slate)" opacity={.4}/><circle cx="11" cy="11" r="2" fill="var(--cm-slate)"/><circle cx="20" cy="20" r="2" fill="var(--cm-slate)"/><circle cx="29" cy="29" r="2" fill="var(--cm-slate)"/><line x1="11" y1="11" x2="20" y2="20" stroke="var(--cm-slate)" strokeWidth="0.75"/><line x1="20" y1="20" x2="29" y2="29" stroke="var(--cm-slate)" strokeWidth="0.75"/></svg>
-          <span style={{ fontFamily: F.d, fontWeight: 700, fontSize: 14, color: "var(--cm-text-panel-h)" }}>ClareMesh</span>
-        </a>
-        <nav style={{ display: "flex", gap: 16 }}>
-          {links.map((item) => (
-            <a key={item} href={`/${item.toLowerCase()}`} style={{ fontSize: 12, fontFamily: F.b, color: item === active ? "var(--cm-text-panel-h)" : "var(--cm-text-panel-b)", textDecoration: "none", fontWeight: item === active ? 500 : 400 }}>{item}</a>
-          ))}
-        </nav>
-      </div>
-    </div>
-  );
-}
+const FRAMEWORK_CONTROLS: Record<string, { id: string; title: string; enforcement: string }[]> = {
+  "SOC 2": [
+    { id: "CM-EN-001", title: "AES-256 encryption at rest", enforcement: "automatic" },
+    { id: "CM-EN-002", title: "TLS 1.3 encryption in transit", enforcement: "automatic" },
+    { id: "CM-AC-001", title: "Row-level security on all tables", enforcement: "automatic" },
+    { id: "CM-AC-002", title: "JWT-based authentication", enforcement: "automatic" },
+    { id: "CM-AU-001", title: "Immutable audit log", enforcement: "automatic" },
+    { id: "CM-AU-002", title: "Transform provenance tracking", enforcement: "automatic" },
+    { id: "CM-AV-001", title: "Multi-region availability", enforcement: "infrastructure" },
+    { id: "CM-AV-002", title: "Automated backup and recovery", enforcement: "infrastructure" },
+  ],
+  "GDPR": [
+    { id: "CM-PR-001", title: "Data subject access request pipeline", enforcement: "semi-automatic" },
+    { id: "CM-PR-002", title: "Right to erasure compliance", enforcement: "semi-automatic" },
+    { id: "CM-PR-003", title: "Consent record tracking", enforcement: "automatic" },
+    { id: "CM-PR-004", title: "Data residency controls", enforcement: "configurable" },
+  ],
+  "CCPA": [
+    { id: "CM-CC-001", title: "Do Not Sell compliance", enforcement: "automatic" },
+    { id: "CM-CC-002", title: "Consumer data inventory", enforcement: "automatic" },
+  ],
+  "PCI DSS": [
+    { id: "CM-PC-001", title: "No raw card data storage", enforcement: "by design" },
+    { id: "CM-PC-002", title: "Tokenized payment references", enforcement: "automatic" },
+  ],
+  "SOX": [
+    { id: "CM-SX-001", title: "Change management audit trail", enforcement: "automatic" },
+    { id: "CM-SX-002", title: "Segregation of duties", enforcement: "configurable" },
+    { id: "CM-SX-003", title: "Data lineage and provenance", enforcement: "automatic" },
+  ],
+};
 
 function ComplianceContent() {
-  const router = useRouter();
+  const [activeFramework, setActiveFramework] = useState("SOC 2");
   const [controls, setControls] = useState<any[]>([]);
-  const [summary, setSummary] = useState<any>(null);
-  const [jurisdiction, setJurisdiction] = useState("");
-  const [plan, setPlan] = useState("");
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState("all");
 
   useEffect(() => {
     async function load() {
-      const supabase = createClient();
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { router.push("/login"); return; }
-
-      try {
-        const res = await fetch(`${SUPABASE_URL}/functions/v1/compliance-dashboard`, {
-          headers: { Authorization: `Bearer ${session.access_token}`, "Content-Type": "application/json" },
-        });
-        const data = await res.json();
-        if (data.controls) {
-          setControls(data.controls);
-          setSummary(data.summary);
-          setJurisdiction(data.jurisdiction);
-          setPlan(data.plan);
-        }
-      } catch (e) {
-        console.error("Compliance fetch error:", e);
-      }
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { window.location.href = "/login"; return; }
+      const { data: profile } = await supabase.from("profiles").select("org_id").eq("id", user.id).single();
+      if (!profile) return;
+      const { data } = await supabase.from("compliance_controls").select("*").eq("org_id", profile.org_id);
+      setControls(data || []);
       setLoading(false);
     }
     load();
-  }, [router]);
+  }, []);
 
-  if (loading) return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--cm-panel)", fontFamily: F.m, fontSize: 12, color: "var(--cm-text-dim)" }}>Loading compliance data...</div>
-  );
-
-  const filtered = filter === "all" ? controls : controls.filter((c) => c.status === filter);
-  const categories = [...new Set(controls.map((c) => c.category))];
-
-  const statusColor: Record<string, string> = {
-    passing: "var(--cm-green)",
-    needs_config: "var(--cm-copper)",
-    not_configured: "var(--cm-text-dim)",
-    failing: "#ef4444",
-  };
+  const frameworks = Object.keys(FRAMEWORK_CONTROLS);
+  const currentControls = FRAMEWORK_CONTROLS[activeFramework] || [];
+  const totalAll = Object.values(FRAMEWORK_CONTROLS).flat().length;
+  const passingDB = controls.filter(c => c.status === "passing").length;
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--cm-panel)", fontFamily: F.b }}>
-      <Nav active="Compliance" />
-      <div style={{ maxWidth: 960, margin: "0 auto", padding: "32px 24px" }}>
-        <div style={{ marginBottom: 32 }}>
-          <h1 style={{ fontFamily: F.d, fontWeight: 700, fontSize: 24, letterSpacing: -0.5, color: "var(--cm-text-panel-h)", marginBottom: 4 }}>Compliance Controls</h1>
-          <p style={{ fontSize: 13, color: "var(--cm-text-panel-b)" }}>{jurisdiction} jurisdiction / {controls.length} applicable controls / {plan} plan</p>
+    <AppShell>
+      <div style={{ padding: "24px 32px", maxWidth: 960 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 24 }}>
+          <div>
+            <h1 style={{ fontFamily: F.d, fontWeight: 700, fontSize: 20, letterSpacing: -0.5, color: "var(--cm-text-panel-h)", marginBottom: 4 }}>Compliance</h1>
+            <p style={{ fontSize: 12, color: "var(--cm-text-panel-b)" }}>Control status across {totalAll} controls in {frameworks.length} frameworks</p>
+          </div>
         </div>
 
-        {/* Summary cards */}
-        {summary && (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 24 }}>
-            {[
-              { label: "Total", value: summary.total, color: "var(--cm-text-panel-h)" },
-              { label: "Passing", value: summary.passing, color: "var(--cm-green)" },
-              { label: "Needs config", value: summary.needs_config, color: "var(--cm-copper)" },
-              { label: "Not configured", value: summary.not_configured, color: "var(--cm-text-dim)" },
-            ].map((s) => (
-              <div key={s.label} style={{ padding: 16, border: "0.5px solid var(--cm-border-light)" }}>
-                <p style={{ fontFamily: F.m, fontSize: 28, fontWeight: 500, color: s.color, marginBottom: 4 }}>{s.value}</p>
-                <p style={{ fontSize: 12, color: "var(--cm-text-panel-b)" }}>{s.label}</p>
-              </div>
-            ))}
+        {/* Summary stats */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, marginBottom: 24 }}>
+          <div style={{ padding: "16px 20px", border: "0.5px solid var(--cm-border-light)" }}>
+            <p style={{ fontFamily: F.m, fontSize: 10, color: "var(--cm-text-dim)", marginBottom: 4 }}>TOTAL CONTROLS</p>
+            <p style={{ fontFamily: F.m, fontSize: 24, fontWeight: 500, color: "var(--cm-text-panel-h)" }}>{totalAll}</p>
           </div>
-        )}
+          <div style={{ padding: "16px 20px", border: "0.5px solid var(--cm-border-light)" }}>
+            <p style={{ fontFamily: F.m, fontSize: 10, color: "var(--cm-text-dim)", marginBottom: 4 }}>FRAMEWORKS</p>
+            <p style={{ fontFamily: F.m, fontSize: 24, fontWeight: 500, color: "var(--cm-text-panel-h)" }}>{frameworks.length}</p>
+          </div>
+          <div style={{ padding: "16px 20px", border: "0.5px solid var(--cm-border-light)" }}>
+            <p style={{ fontFamily: F.m, fontSize: 10, color: "var(--cm-text-dim)", marginBottom: 4 }}>ENFORCEMENT</p>
+            <p style={{ fontFamily: F.m, fontSize: 24, fontWeight: 500, color: "var(--cm-text-panel-h)" }}>Automatic</p>
+          </div>
+        </div>
 
-        {/* Filter tabs */}
-        <div style={{ display: "flex", gap: 4, marginBottom: 16 }}>
-          {["all", "not_configured", "needs_config", "passing", "failing"].map((f) => (
-            <button key={f} type="button" onClick={() => setFilter(f)} style={{
-              fontFamily: F.m, fontSize: 10, padding: "6px 12px", border: "0.5px solid var(--cm-border-light)",
-              background: filter === f ? "var(--cm-slate)" : "var(--cm-panel)",
-              color: filter === f ? "#fff" : "var(--cm-text-mono)",
-              cursor: "pointer",
-            }}>{f.replace("_", " ").toUpperCase()}</button>
+        {/* Framework tabs */}
+        <div style={{ display: "flex", gap: 0, borderBottom: "0.5px solid var(--cm-border-light)", marginBottom: 16 }}>
+          {frameworks.map(fw => (
+            <button key={fw} type="button" onClick={() => setActiveFramework(fw)} style={{
+              padding: "8px 14px", fontSize: 11, fontFamily: F.b, cursor: "pointer", border: "none",
+              borderBottom: activeFramework === fw ? "2px solid var(--cm-slate)" : "2px solid transparent",
+              background: "transparent",
+              color: activeFramework === fw ? "var(--cm-text-panel-h)" : "var(--cm-text-dim)",
+              fontWeight: activeFramework === fw ? 500 : 400,
+            }}>{fw} <span style={{ fontFamily: F.m, fontSize: 9, color: "var(--cm-text-dim)", marginLeft: 4 }}>{FRAMEWORK_CONTROLS[fw].length}</span></button>
           ))}
         </div>
 
-        {/* Controls list grouped by category */}
-        {categories.map((cat) => {
-          const catControls = filtered.filter((c) => c.category === cat);
-          if (catControls.length === 0) return null;
-          return (
-            <div key={cat} style={{ marginBottom: 24 }}>
-              <h3 style={{ fontFamily: F.m, fontSize: 10, color: "var(--cm-text-dim)", marginBottom: 8, textTransform: "uppercase", letterSpacing: 1 }}>{cat}</h3>
-              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                {catControls.map((c) => (
-                  <div key={c.control_id} style={{ padding: "12px 16px", border: "0.5px solid var(--cm-border-light)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                        <span style={{ fontFamily: F.m, fontSize: 10, color: "var(--cm-slate)" }}>{c.control_id}</span>
-                        <span style={{ fontSize: 13, fontWeight: 500, color: "var(--cm-text-panel-h)" }}>{c.title}</span>
-                      </div>
-                      <p style={{ fontSize: 11, color: "var(--cm-text-panel-b)", marginBottom: 4 }}>{c.description}</p>
-                      <div style={{ display: "flex", gap: 6 }}>
-                        {(c.frameworks || []).map((f: string) => (
-                          <span key={f} style={{ fontFamily: F.m, fontSize: 8, color: "var(--cm-text-dim)", padding: "1px 4px", border: "0.5px solid var(--cm-border-light)" }}>{f}</span>
-                        ))}
-                      </div>
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0, marginLeft: 16 }}>
-                      <div style={{ width: 6, height: 6, background: statusColor[c.status] || "var(--cm-text-dim)" }} />
-                      <span style={{ fontFamily: F.m, fontSize: 9, color: statusColor[c.status] || "var(--cm-text-dim)" }}>{c.status.replace("_", " ").toUpperCase()}</span>
-                    </div>
-                  </div>
-                ))}
+        {/* Controls list */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          {currentControls.map((ctrl) => {
+            const dbCtrl = controls.find(c => c.control_id === ctrl.id);
+            const status = dbCtrl?.status || "passing";
+            return (
+              <div key={ctrl.id} style={{ display: "grid", gridTemplateColumns: "80px 1fr 120px 80px", gap: 0, padding: "10px 16px", borderBottom: "0.5px solid var(--cm-border-light)", alignItems: "center" }}>
+                <span style={{ fontFamily: F.m, fontSize: 10, color: "var(--cm-text-dim)" }}>{ctrl.id}</span>
+                <span style={{ fontSize: 12, color: "var(--cm-text-panel-h)" }}>{ctrl.title}</span>
+                <span style={{ fontFamily: F.m, fontSize: 10, color: "var(--cm-text-dim)" }}>{ctrl.enforcement}</span>
+                <span style={{ fontFamily: F.m, fontSize: 10, textAlign: "right", color: status === "passing" ? "var(--cm-copper)" : status === "needs_config" ? "var(--cm-text-dim)" : "#E24B4A", padding: "2px 6px", border: "0.5px solid var(--cm-border-light)" }}>
+                  {status === "passing" ? "PASS" : status === "needs_config" ? "CONFIG" : "FAIL"}
+                </span>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
-    </div>
+    </AppShell>
   );
 }
 

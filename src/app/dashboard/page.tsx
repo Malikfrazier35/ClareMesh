@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, Suspense } from "react";
-import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { createClient } from "@supabase/supabase-js";
+import AppShell from "@/components/AppShell";
 
 const F = {
   d: "'Instrument Sans','SF Pro Display','Segoe UI',system-ui,sans-serif",
@@ -9,117 +9,230 @@ const F = {
   m: "'Geist Mono','SF Mono','Cascadia Code','Consolas','Courier New',monospace",
 };
 
+const supabase = createClient(
+  "https://ddevkorgiutduydelhgv.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkZXZrb3JnaXV0ZHV5ZGVsaGd2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxODI0NDIsImV4cCI6MjA5MTc1ODQ0Mn0.J42xtXgMJ0J4DdTwg3eCHKafOHTe0Tb6WRlTwZ9B-eE"
+);
+
+interface DashData {
+  org: any;
+  plan: any;
+  connectors: any[];
+  recentTransforms: any[];
+  anomalies: any[];
+  usageThisPeriod: number;
+  transformLimit: number;
+  complianceScore: number;
+}
+
+function StatCard({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
+  return (
+    <div style={{ padding: "16px 20px", border: "0.5px solid var(--cm-border-light)" }}>
+      <p style={{ fontFamily: F.m, fontSize: 10, color: "var(--cm-text-dim)", marginBottom: 6, letterSpacing: 0.5 }}>{label}</p>
+      <p style={{ fontFamily: F.m, fontSize: 24, fontWeight: 500, color: "var(--cm-text-panel-h)" }}>{value}</p>
+      {sub && <p style={{ fontSize: 11, color: "var(--cm-text-panel-b)", marginTop: 4 }}>{sub}</p>}
+    </div>
+  );
+}
+
+function StatusDot({ status }: { status: string }) {
+  const color = status === "active" ? "var(--cm-copper)" : status === "unhealthy" ? "#E24B4A" : "var(--cm-text-dim)";
+  return <span style={{ display: "inline-block", width: 6, height: 6, borderRadius: "50%", background: color, marginRight: 6 }} />;
+}
+
 function DashboardContent() {
-  const router = useRouter();
-  const [org, setOrg] = useState<any>(null);
-  const [profile, setProfile] = useState<any>(null);
+  const [data, setData] = useState<DashData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function load() {
-      const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { router.push("/login"); return; }
-      const { data: p } = await supabase.from("profiles").select("*").eq("user_id", user.id).single();
-      if (p && !p.onboarding_completed) { router.push("/onboarding"); return; }
-      if (p) {
-        setProfile(p);
-        const { data: o } = await supabase.from("organizations").select("*").eq("id", p.org_id).single();
-        setOrg(o);
+      if (!user) { window.location.href = "/login"; return; }
+
+      const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single();
+      if (!profile) { window.location.href = "/onboarding"; return; }
+
+      const orgId = profile.org_id;
+
+      const [orgRes, planRes, connRes, logRes, anomRes, usageRes] = await Promise.all([
+        supabase.from("organizations").select("*").eq("id", orgId).single(),
+        supabase.from("plan_definitions").select("*").eq("slug", "open").single(),
+        supabase.from("connectors").select("*").eq("org_id", orgId).order("created_at", { ascending: false }),
+        supabase.from("transform_logs").select("*").eq("org_id", orgId).order("created_at", { ascending: false }).limit(10),
+        supabase.from("anomaly_queue").select("*").eq("org_id", orgId).eq("status", "pending").order("created_at", { ascending: false }).limit(5),
+        supabase.from("usage_records").select("value").eq("org_id", orgId).eq("metric", "transforms").gte("period_start", new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString()),
+      ]);
+
+      // Get current plan from org
+      const org = orgRes.data;
+      let plan = planRes.data;
+      if (org?.current_plan) {
+        const { data: p } = await supabase.from("plan_definitions").select("*").eq("slug", org.current_plan).single();
+        if (p) plan = p;
       }
+
+      const usageTotal = (usageRes.data || []).reduce((sum: number, r: any) => sum + (r.value || 0), 0);
+      const transformLimit = plan?.config?.transform_limit || 1000;
+
+      // Compliance score: count passing controls
+      const { data: controls } = await supabase.from("compliance_controls").select("status").eq("org_id", orgId);
+      const totalControls = (controls || []).length;
+      const passingControls = (controls || []).filter((c: any) => c.status === "passing").length;
+      const complianceScore = totalControls > 0 ? Math.round((passingControls / totalControls) * 100) : 0;
+
+      setData({
+        org,
+        plan,
+        connectors: connRes.data || [],
+        recentTransforms: logRes.data || [],
+        anomalies: anomRes.data || [],
+        usageThisPeriod: usageTotal,
+        transformLimit,
+        complianceScore,
+      });
       setLoading(false);
     }
     load();
-  }, [router]);
+  }, []);
 
-  if (loading) return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--cm-panel)", fontFamily: F.m, fontSize: 12, color: "var(--cm-text-dim)" }}>
-      Loading...
-    </div>
-  );
+  if (loading) {
+    return (
+      <AppShell>
+        <div style={{ padding: 40 }}>
+          <p style={{ fontFamily: F.m, fontSize: 12, color: "var(--cm-text-dim)" }}>Loading dashboard...</p>
+        </div>
+      </AppShell>
+    );
+  }
 
-  const stats = [
-    { label: "Connectors", value: "0", sub: org?.plan === "open" ? "1 available" : "5 available" },
-    { label: "Transforms this period", value: "0", sub: "of 1,000" },
-    { label: "Compliance controls", value: "0", sub: "configured" },
-    { label: "Sync channels", value: "0", sub: org?.plan === "scale" || org?.plan === "enterprise" ? "available" : "requires Scale" },
-  ];
+  if (!data) return null;
 
-  const quickActions = [
-    { label: "Connect a data source", desc: "Plaid, Stripe, QuickBooks, CSV", href: "/connectors" },
-    { label: "Browse the schema", desc: "5 objects, v1.0.0", href: "/schema" },
-    { label: "View compliance controls", desc: "29 controls across 10 frameworks", href: "/compliance" },
-    { label: "Manage your team", desc: "Invite members, set roles", href: "/settings" },
-  ];
+  const usagePct = data.transformLimit > 0 ? Math.min(100, Math.round((data.usageThisPeriod / data.transformLimit) * 100)) : 0;
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--cm-panel)", fontFamily: F.b }}>
-      {/* Top nav */}
-      <div style={{ padding: "12px 32px", borderBottom: "0.5px solid var(--cm-border-light)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
-          <a href="/" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none" }}>
-            <svg width="16" height="16" viewBox="0 0 40 40" fill="none"><rect x="4" y="4" width="14" height="14" fill="var(--cm-slate)" opacity={.15}/><rect x="12" y="12" width="14" height="14" fill="var(--cm-slate)" opacity={.25}/><rect x="22" y="22" width="14" height="14" fill="var(--cm-slate)" opacity={.4}/><circle cx="11" cy="11" r="2" fill="var(--cm-slate)"/><circle cx="20" cy="20" r="2" fill="var(--cm-slate)"/><circle cx="29" cy="29" r="2" fill="var(--cm-slate)"/><line x1="11" y1="11" x2="20" y2="20" stroke="var(--cm-slate)" strokeWidth="0.75"/><line x1="20" y1="20" x2="29" y2="29" stroke="var(--cm-slate)" strokeWidth="0.75"/></svg>
-            <span style={{ fontFamily: F.d, fontWeight: 700, fontSize: 14, color: "var(--cm-text-panel-h)" }}>ClareMesh</span>
-          </a>
-          <nav style={{ display: "flex", gap: 16 }}>
-            {["Dashboard", "Connectors", "Transforms", "Sync", "Compliance", "Settings"].map((item, i) => (
-              <a key={item} href={`/${item.toLowerCase()}`} className="cm-nl" style={{ fontSize: 12, color: i === 0 ? "var(--cm-text-panel-h)" : "var(--cm-text-panel-b)", textDecoration: "none", fontWeight: i === 0 ? 500 : 400 }}>{item}</a>
-            ))}
-          </nav>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <span style={{ fontFamily: F.m, fontSize: 10, color: "var(--cm-text-mono)", padding: "3px 8px", border: "0.5px solid var(--cm-border-light)" }}>{org?.plan?.toUpperCase() || "OPEN"}</span>
-          <span style={{ fontFamily: F.m, fontSize: 10, color: "var(--cm-text-mono)", padding: "3px 8px", border: "0.5px solid var(--cm-border-light)" }}>{org?.jurisdiction || "US"}</span>
-        </div>
-      </div>
-
-      {/* Main content */}
-      <div style={{ maxWidth: 960, margin: "0 auto", padding: "32px 24px" }}>
-        <div style={{ marginBottom: 32 }}>
-          <h1 style={{ fontFamily: F.d, fontWeight: 700, fontSize: 24, letterSpacing: -0.5, color: "var(--cm-text-panel-h)", marginBottom: 4 }}>
-            {org?.name || "Dashboard"}
-          </h1>
-          <p style={{ fontSize: 13, color: "var(--cm-text-panel-b)" }}>
-            {org?.jurisdiction || "US"} jurisdiction / {org?.plan || "open"} plan / schema v1.0.0
-          </p>
-        </div>
-
-        {/* Stats */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 32 }}>
-          {stats.map((s) => (
-            <div key={s.label} style={{ padding: "16px", border: "0.5px solid var(--cm-border-light)", background: "var(--cm-panel)" }}>
-              <p style={{ fontFamily: F.m, fontSize: 24, fontWeight: 500, color: "var(--cm-text-panel-h)", marginBottom: 4 }}>{s.value}</p>
-              <p style={{ fontSize: 12, fontWeight: 500, color: "var(--cm-text-panel-h)", marginBottom: 2 }}>{s.label}</p>
-              <p style={{ fontFamily: F.m, fontSize: 10, color: "var(--cm-text-dim)" }}>{s.sub}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Quick actions */}
-        <h2 style={{ fontFamily: F.d, fontWeight: 600, fontSize: 16, color: "var(--cm-text-panel-h)", marginBottom: 12 }}>Get started</h2>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 8, marginBottom: 32 }}>
-          {quickActions.map((a) => (
-            <a key={a.label} href={a.href} className="cm-cell" style={{ padding: "16px", border: "0.5px solid var(--cm-border-light)", background: "var(--cm-panel)", textDecoration: "none", display: "block" }}>
-              <p style={{ fontSize: 13, fontWeight: 500, color: "var(--cm-text-panel-h)", marginBottom: 2 }}>{a.label}</p>
-              <p style={{ fontSize: 11, color: "var(--cm-text-panel-b)" }}>{a.desc}</p>
-            </a>
-          ))}
-        </div>
-
-        {/* System status */}
-        <h2 style={{ fontFamily: F.d, fontWeight: 600, fontSize: 16, color: "var(--cm-text-panel-h)", marginBottom: 12 }}>System status</h2>
-        <div style={{ padding: "16px", border: "0.5px solid var(--cm-border-light)", background: "var(--cm-panel)" }}>
-          <div style={{ display: "flex", gap: 24 }}>
-            {["Transform engine", "Sync engine", "Auth", "Compliance evaluator", "Billing"].map((svc) => (
-              <div key={svc} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <div style={{ width: 6, height: 6, background: "var(--cm-green)" }} />
-                <span style={{ fontFamily: F.m, fontSize: 10, color: "var(--cm-text-mono)" }}>{svc}</span>
-              </div>
-            ))}
+    <AppShell>
+      <div style={{ padding: "24px 32px", maxWidth: 960 }}>
+        {/* Header */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 24 }}>
+          <div>
+            <h1 style={{ fontFamily: F.d, fontWeight: 700, fontSize: 20, letterSpacing: -0.5, color: "var(--cm-text-panel-h)", marginBottom: 4 }}>Overview</h1>
+            <p style={{ fontSize: 12, color: "var(--cm-text-panel-b)" }}>{data.org?.name || "Your organization"}</p>
+          </div>
+          <div style={{ textAlign: "right" }}>
+            <span style={{ fontFamily: F.m, fontSize: 10, color: "var(--cm-copper)", padding: "3px 8px", border: "0.5px solid var(--cm-border-light)" }}>{(data.plan?.name || "Open").toUpperCase()}</span>
           </div>
         </div>
+
+        {/* Stat cards */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 24 }}>
+          <StatCard label="TRANSFORMS THIS PERIOD" value={data.usageThisPeriod.toLocaleString()} sub={`of ${data.transformLimit.toLocaleString()} limit`} />
+          <StatCard label="ACTIVE CONNECTORS" value={data.connectors.filter(c => c.status === "active").length} sub={`${data.connectors.length} total`} />
+          <StatCard label="COMPLIANCE SCORE" value={`${data.complianceScore}%`} sub={`controls passing`} />
+          <StatCard label="PENDING ANOMALIES" value={data.anomalies.length} sub={data.anomalies.length > 0 ? "review needed" : "all clear"} />
+        </div>
+
+        {/* Usage meter */}
+        <div style={{ padding: "16px 20px", border: "0.5px solid var(--cm-border-light)", marginBottom: 24 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
+            <p style={{ fontSize: 12, fontWeight: 500, color: "var(--cm-text-panel-h)" }}>Transform usage</p>
+            <p style={{ fontFamily: F.m, fontSize: 11, color: "var(--cm-text-dim)" }}>{usagePct}%</p>
+          </div>
+          <div style={{ height: 4, background: "var(--cm-terminal)", borderRadius: 2, overflow: "hidden" }}>
+            <div style={{ height: "100%", width: `${usagePct}%`, background: usagePct > 90 ? "#E24B4A" : usagePct > 70 ? "var(--cm-copper)" : "var(--cm-slate)", borderRadius: 2, transition: "width 0.5s ease" }} />
+          </div>
+          <p style={{ fontSize: 10, color: "var(--cm-text-dim)", marginTop: 6 }}>{data.usageThisPeriod.toLocaleString()} of {data.transformLimit.toLocaleString()} transforms used this billing period</p>
+        </div>
+
+        {/* Two-column: Connectors + Recent transforms */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 24 }}>
+          {/* Connectors */}
+          <div style={{ border: "0.5px solid var(--cm-border-light)", padding: "16px 20px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+              <p style={{ fontSize: 13, fontWeight: 500, color: "var(--cm-text-panel-h)" }}>Connectors</p>
+              <a href="/connectors" style={{ fontSize: 11, color: "var(--cm-text-dim)", textDecoration: "none" }}>Manage</a>
+            </div>
+            {data.connectors.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "20px 0" }}>
+                <p style={{ fontSize: 12, color: "var(--cm-text-dim)", marginBottom: 8 }}>No connectors configured</p>
+                <a href="/connectors" style={{ fontSize: 11, color: "var(--cm-text-panel-h)", textDecoration: "none", padding: "6px 12px", border: "0.5px solid var(--cm-border-light)" }}>Add connector</a>
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                {data.connectors.slice(0, 5).map((c) => (
+                  <div key={c.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: "0.5px solid var(--cm-border-light)" }}>
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                      <StatusDot status={c.status} />
+                      <span style={{ fontSize: 12, color: "var(--cm-text-panel-h)" }}>{c.name || c.provider}</span>
+                    </div>
+                    <span style={{ fontFamily: F.m, fontSize: 10, color: "var(--cm-text-dim)" }}>{c.provider}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Recent transforms */}
+          <div style={{ border: "0.5px solid var(--cm-border-light)", padding: "16px 20px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+              <p style={{ fontSize: 13, fontWeight: 500, color: "var(--cm-text-panel-h)" }}>Recent transforms</p>
+              <a href="/transforms" style={{ fontSize: 11, color: "var(--cm-text-dim)", textDecoration: "none" }}>View all</a>
+            </div>
+            {data.recentTransforms.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "20px 0" }}>
+                <p style={{ fontSize: 12, color: "var(--cm-text-dim)" }}>No transforms yet</p>
+                <p style={{ fontSize: 11, color: "var(--cm-text-dim)", marginTop: 4 }}>Connect a provider and run your first transform</p>
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                {data.recentTransforms.slice(0, 5).map((t) => (
+                  <div key={t.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: "0.5px solid var(--cm-border-light)" }}>
+                    <div>
+                      <span style={{ fontSize: 12, color: "var(--cm-text-panel-h)" }}>{t.source_type}</span>
+                      <span style={{ fontFamily: F.m, fontSize: 10, color: "var(--cm-text-dim)", marginLeft: 8 }}>{t.records_in} in / {t.records_out} out</span>
+                    </div>
+                    <span style={{ fontFamily: F.m, fontSize: 10, color: "var(--cm-text-dim)" }}>{new Date(t.created_at).toLocaleTimeString()}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Anomaly queue */}
+        {data.anomalies.length > 0 && (
+          <div style={{ border: "0.5px solid var(--cm-border-light)", padding: "16px 20px", marginBottom: 24 }}>
+            <p style={{ fontSize: 13, fontWeight: 500, color: "var(--cm-text-panel-h)", marginBottom: 12 }}>Anomaly queue</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              {data.anomalies.map((a) => (
+                <div key={a.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: "0.5px solid var(--cm-border-light)" }}>
+                  <div>
+                    <span style={{ fontFamily: F.m, fontSize: 10, color: a.severity === "critical" ? "#E24B4A" : a.severity === "high" ? "var(--cm-copper)" : "var(--cm-text-dim)", padding: "2px 6px", border: "0.5px solid var(--cm-border-light)", marginRight: 8 }}>{a.severity.toUpperCase()}</span>
+                    <span style={{ fontSize: 12, color: "var(--cm-text-panel-h)" }}>{a.anomaly_type.replace(/_/g, " ")}</span>
+                  </div>
+                  <span style={{ fontFamily: F.m, fontSize: 10, color: "var(--cm-text-dim)" }}>{new Date(a.created_at).toLocaleDateString()}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Quick actions */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+          <a href="/connectors" style={{ padding: "12px 16px", border: "0.5px solid var(--cm-border-light)", textDecoration: "none", textAlign: "center" }}>
+            <p style={{ fontSize: 12, fontWeight: 500, color: "var(--cm-text-panel-h)" }}>Add connector</p>
+            <p style={{ fontSize: 11, color: "var(--cm-text-dim)", marginTop: 2 }}>Connect Plaid, Stripe, QB, Xero</p>
+          </a>
+          <a href="/compliance" style={{ padding: "12px 16px", border: "0.5px solid var(--cm-border-light)", textDecoration: "none", textAlign: "center" }}>
+            <p style={{ fontSize: 12, fontWeight: 500, color: "var(--cm-text-panel-h)" }}>Compliance dashboard</p>
+            <p style={{ fontSize: 11, color: "var(--cm-text-dim)", marginTop: 2 }}>Review controls and evidence</p>
+          </a>
+          <a href="/docs" style={{ padding: "12px 16px", border: "0.5px solid var(--cm-border-light)", textDecoration: "none", textAlign: "center" }}>
+            <p style={{ fontSize: 12, fontWeight: 500, color: "var(--cm-text-panel-h)" }}>Documentation</p>
+            <p style={{ fontSize: 11, color: "var(--cm-text-dim)", marginTop: 2 }}>API reference and guides</p>
+          </a>
+        </div>
       </div>
-    </div>
+    </AppShell>
   );
 }
 
