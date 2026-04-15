@@ -14,7 +14,7 @@ ClareMesh is an open-core platform that normalizes financial data from multiple 
 ## Quick Start
 
 ```
-npm install @claremesh/transforms
+npm install @claremesh/schema @claremesh/transforms
 import { transformPlaid } from '@claremesh/transforms/plaid'
 const normalized = transformPlaid(yourPlaidData)
 ```
@@ -35,7 +35,11 @@ const normalized = transformPlaid(yourPlaidData)
 ## Links
 
 - Website: https://claremesh.com
+- Documentation: https://claremesh.com/docs
 - Pricing: https://claremesh.com/pricing
 - Schema Browser: https://claremesh.com/schema
+- Security: https://claremesh.com/security
+- Compare vs Plaid: https://claremesh.com/compare/plaid
+- Compare vs Merge: https://claremesh.com/compare/merge
+- Compare vs Airbyte: https://claremesh.com/compare/airbyte
 - GitHub: https://github.com/Malikfrazier35/ClareMesh
-
