@@ -9,6 +9,15 @@ const F = {
 
 const POSTS = [
   {
+    slug: "we-open-sourced-our-financial-data-schema",
+    title: "We open-sourced our financial data schema. Here's why.",
+    excerpt: "Two years ago we started writing normalization code for a treasury product. We ended up writing it four times across four codebases before realizing every fintech team solves the same problem. Here's the case for open-source financial data infrastructure — and why we bet our business on it.",
+    date: "April 30, 2026",
+    readTime: "11 min",
+    category: "Philosophy",
+    tags: ["Open Source", "Strategy", "Fintech"],
+  },
+  {
     slug: "why-month-end-close-still-takes-5-days",
     title: "Why month-end close still takes 5 days in 2026",
     excerpt: "It's Monday morning of close week. Somewhere, a controller is staring at 17 open browser tabs. If you run finance in 2026, this scene is familiar. Here's where the five days actually go — and what would need to be true to get to one.",
@@ -85,7 +94,7 @@ function BlogIndexContent() {
         <div style={{ marginTop: 48, padding: "24px", border: "0.5px solid var(--cm-border-light)", background: "var(--cm-terminal)", textAlign: "center" }}>
           <p style={{ fontFamily: F.m, fontSize: 10, letterSpacing: 1.5, color: "var(--cm-copper)", marginBottom: 8 }}>NEW POSTS WEEKLY</p>
           <p style={{ fontSize: 13, color: "var(--cm-text-panel-b)", lineHeight: 1.6, maxWidth: 420, margin: "0 auto" }}>
-            We publish technical deep-dives covering fintech infrastructure, data normalization, compliance, and close acceleration.
+            Technical deep-dives on fintech infrastructure, data normalization, compliance, and close acceleration.
           </p>
           <a href="https://github.com/Malikfrazier35/ClareMesh" target="_blank" rel="noopener" style={{ display: "inline-block", marginTop: 12, fontFamily: F.m, fontSize: 11, color: "var(--cm-slate)", textDecoration: "none" }}>
             Follow on GitHub →

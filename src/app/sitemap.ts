@@ -28,5 +28,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: 'https://claremesh.com/blog', lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
     { url: 'https://claremesh.com/blog/5-bugs-every-plaid-integration-ships', lastModified: new Date(), changeFrequency: 'monthly', priority: 0.9 },
     { url: 'https://claremesh.com/blog/why-month-end-close-still-takes-5-days', lastModified: new Date(), changeFrequency: 'monthly', priority: 0.9 },
+    { url: 'https://claremesh.com/blog/we-open-sourced-our-financial-data-schema', lastModified: new Date(), changeFrequency: 'monthly', priority: 0.9 },
   ];
 }
