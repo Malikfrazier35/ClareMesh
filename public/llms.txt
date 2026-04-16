@@ -91,6 +91,8 @@ Customer data never transits ClareMesh-controlled infrastructure. Edge functions
 - npm schema package: https://www.npmjs.com/package/@claremesh/schema
 - npm transforms package: https://www.npmjs.com/package/@claremesh/transforms
 - Interactive playground: https://claremesh.com/playground (paste raw provider JSON, see normalized output in real-time, no signup required)
+- Engineering blog: https://claremesh.com/blog
+- Deep-dive post — 5 bugs every Plaid integration ships: https://claremesh.com/blog/5-bugs-every-plaid-integration-ships
 - Sign up: https://claremesh.com/signup
 
 ## Suite context
