@@ -101,7 +101,7 @@ export default function Home() {
               <span style={m({ fontSize:9,color:"var(--cm-footer-c)" })}>|</span>
               <span style={m({ fontSize:9,color:"var(--cm-footer-c)" })}>schema v2.4.1</span>
               <span style={m({ fontSize:9,color:"var(--cm-footer-c)" })}>|</span>
-              <span style={m({ fontSize:9,color:"var(--cm-footer-c)" })}>22 controls</span>
+              <span style={m({ fontSize:9,color:"var(--cm-footer-c)" })}>61 controls</span>
             </div>
             <p className="cm-a2" style={m({ fontSize:10,letterSpacing:2.5,color:"var(--cm-slate)",marginBottom:12 })}>FINANCIAL DATA INFRASTRUCTURE</p>
             <div className="cm-acc" style={{ height:2,background:"var(--cm-copper)",width:40,marginBottom:20 }}/>
@@ -127,7 +127,7 @@ export default function Home() {
               {l:"[ SCHEMA ]",t:"Unified object model",d:"Account, Transaction, Entity, Balance, Forecast. Published, versioned, MIT-licensed. TypeScript and Python types."},
               {l:"[ TRANSFORMS ]",t:"Normalize anything",d:"Plaid, Stripe, QuickBooks, Xero, NetSuite, CSV. Raw API response in, clean schema out. One function call."},
               {l:"[ SYNC ]",t:"Bi-directional sync",d:"Diff-based change detection, configurable conflict resolution, immutable append-only audit trail."},
-              {l:"[ COMPLIANCE ]",t:"22 controls built in",d:"SOC 2, GDPR, CCPA, PCI, SOX. Readiness dashboard. Automatic enforcement on deploy."},
+              {l:"[ COMPLIANCE ]",t:"61 controls built in",d:"SOC 2, GDPR, CCPA, PCI, SOX. Readiness dashboard. Automatic enforcement on deploy."},
               {l:"[ INFRA ]",t:"Runs on your stack",d:"Deploy on Supabase, Vercel, or Cloudflare. Your data never touches our servers. Zero-access architecture."},
               {l:"[ METERED ]",t:"Usage-based pricing",d:"Open tier free forever. Build at $199/mo. Scale at $799/mo. Overage billed, never throttled."},
             ].map((f,i)=>(<div key={i} className="cm-cell" style={{ padding:32,borderRight:(i+1)%3!==0?bd:"none",borderBottom:i<3?bd:"none" }}>
@@ -260,7 +260,7 @@ export default function Home() {
         <div style={{ background:"var(--cm-hero)",padding:"64px 32px",color:"var(--cm-text-hero-h)",position:"relative",zIndex:2 }}>
           <div className="cm-rv" style={{ maxWidth:600,margin:"0 auto",textAlign:"center" }}>
             <p style={m({ fontSize:10,letterSpacing:2.5,color:"var(--cm-slate)",marginBottom:8 })}>COMPLIANCE</p>
-            <h2 style={{ fontFamily:F.d,fontWeight:700,fontSize:28,letterSpacing:-.5,marginBottom:14,color:"var(--cm-text-hero-h)" }}>22 controls. Zero egress.</h2>
+            <h2 style={{ fontFamily:F.d,fontWeight:700,fontSize:28,letterSpacing:-.5,marginBottom:14,color:"var(--cm-text-hero-h)" }}>61 controls. Zero egress.</h2>
             <p style={{ fontSize:14,color:"var(--cm-text-hero-b)",lineHeight:1.7,marginBottom:32,maxWidth:440,display:"inline-block" }}>Your data never touches our servers. Every control enforced at the edge function and RLS layer on your own Supabase instance.</p>
             <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr 1fr",gap:0,marginBottom:28 }}>
               {[{f:"SOC 2",ct:"8",cv:"--cm-fw-soc"},{f:"GDPR",ct:"6",cv:"--cm-fw-gdpr"},{f:"CCPA",ct:"4",cv:"--cm-fw-ccpa"},{f:"PCI",ct:"2",cv:"--cm-fw-pci"},{f:"SOX",ct:"2",cv:"--cm-fw-sox"}].map((fw,i)=>(
@@ -272,7 +272,7 @@ export default function Home() {
             </div>
             <div style={{ display:"flex",gap:10,justifyContent:"center" }}>
               <a href="/security" className="cm-bp" style={{ padding:"13px 28px",fontSize:13,fontWeight:500,color:"var(--cm-cta1-c)",background:"var(--cm-cta1-bg)",textDecoration:"none",border:"var(--cm-cta1-bd)" }}>Security details</a>
-              <a href="/security" style={{ padding:"13px 28px",fontSize:13,fontWeight:500,color:"var(--cm-cta2-c)",border:"var(--cm-cta2-bd)",textDecoration:"none" }}>View all 22 controls</a>
+              <a href="/security" style={{ padding:"13px 28px",fontSize:13,fontWeight:500,color:"var(--cm-cta2-c)",border:"var(--cm-cta2-bd)",textDecoration:"none" }}>View all 61 controls</a>
             </div>
           </div>
         </div>

@@ -19,5 +19,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${base}/compare/airbyte`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${base}/compare/fivetran`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${base}/lp/demo`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
+      { url: 'https://claremesh.com/security/trust-center', lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
+    { url: 'https://claremesh.com/security/controls', lastModified: new Date(), changeFrequency: 'weekly', priority: 0.7 },
+    { url: 'https://claremesh.com/security/sub-processors', lastModified: new Date(), changeFrequency: 'monthly', priority: 0.7 },
+    { url: 'https://claremesh.com/security/vulnerability-disclosure', lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
+
   ];
 }
