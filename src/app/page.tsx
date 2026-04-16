@@ -272,7 +272,7 @@ export default function Home() {
             </div>
             <div style={{ display:"flex",gap:10,justifyContent:"center" }}>
               <a href="/security" className="cm-bp" style={{ padding:"13px 28px",fontSize:13,fontWeight:500,color:"var(--cm-cta1-c)",background:"var(--cm-cta1-bg)",textDecoration:"none",border:"var(--cm-cta1-bd)" }}>Security details</a>
-              <a href="/docs/compliance" style={{ padding:"13px 28px",fontSize:13,fontWeight:500,color:"var(--cm-cta2-c)",border:"var(--cm-cta2-bd)",textDecoration:"none" }}>View all 22 controls</a>
+              <a href="/security" style={{ padding:"13px 28px",fontSize:13,fontWeight:500,color:"var(--cm-cta2-c)",border:"var(--cm-cta2-bd)",textDecoration:"none" }}>View all 22 controls</a>
             </div>
           </div>
         </div>
