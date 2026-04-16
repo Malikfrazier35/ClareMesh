@@ -283,7 +283,7 @@ export default function Home() {
             {[{t:"PRODUCT",ls:["Schema","Transforms","Sync","Pricing","Changelog"]},{t:"DEVELOPERS",ls:["Documentation","API reference","Quickstart","Status"]},{t:"COMPANY",ls:["About","Blog","Security","Contact"]},{t:"LEGAL",ls:["Privacy","Terms","DPA","Sub-processors"]}].map((col,i)=>(
               <div key={i} style={{ padding:32,borderRight:i<3?bdd:"none" }}>
                 <p style={m({ fontSize:10,letterSpacing:1.5,color:"var(--cm-footer-c)",marginBottom:16 })}>{col.t}</p>
-                {col.ls.map(link=>(<a key={link} href="#" className="cm-fl-d" style={{ display:"block",fontSize:13,color:"var(--cm-text-mono)",textDecoration:"none",marginBottom:10 }}>{link}</a>))}
+                {col.ls.map(link=>(<a key={link} href="/schema" className="cm-fl-d" style={{ display:"block",fontSize:13,color:"var(--cm-text-mono)",textDecoration:"none",marginBottom:10 }}>{link}</a>))}
               </div>
             ))}
           </div>
