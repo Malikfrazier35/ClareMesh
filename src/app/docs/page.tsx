@@ -7,13 +7,32 @@ const F = {
   m: "'Geist Mono','SF Mono','Cascadia Code','Consolas','Courier New',monospace",
 };
 
-const SECTIONS = [
-  {
-    id: "quickstart", title: "Quickstart", content: [
-      { type: "p", text: "Get ClareMesh running in under 5 minutes. Install the schema and transform packages, normalize your first financial record, and validate the output." },
-      { type: "code", lang: "bash", text: "npm install @claremesh/schema @claremesh/transforms" },
-      { type: "p", text: "Import a provider-specific transform and your schema types:" },
-      { type: "code", lang: "ts", text: `import { transformPlaidTransaction } from '@claremesh/transforms/plaid';
+const H2 = { fontFamily: F.d, fontWeight: 700, fontSize: 20, letterSpacing: -0.3, color: "var(--cm-text-panel-h)", marginTop: 32, marginBottom: 12 };
+const H3 = { fontFamily: F.d, fontWeight: 600, fontSize: 16, color: "var(--cm-text-panel-h)", marginTop: 24, marginBottom: 8 };
+const P = { fontSize: 13, color: "var(--cm-text-panel-b)", lineHeight: 1.8, marginBottom: 16 };
+const codeBlockStyle = { padding: "16px", background: "var(--cm-terminal)", border: "0.5px solid var(--cm-border-light)", fontFamily: F.m, fontSize: 11, color: "var(--cm-text-hero-b)", lineHeight: 1.8, overflowX: "auto" as const, whiteSpace: "pre-wrap" as const, wordBreak: "break-word" as const, marginBottom: 16, position: "relative" as const };
+const labelStyle = { position: "absolute" as const, top: 0, right: 0, padding: "4px 8px", fontFamily: F.m, fontSize: 9, color: "var(--cm-text-dim)" };
+const tableStyle = { width: "100%", borderCollapse: "collapse" as const, fontSize: 12, marginBottom: 16 };
+const thStyle = { textAlign: "left" as const, padding: "8px 12px", borderBottom: "0.5px solid var(--cm-border-light)", fontFamily: F.m, fontSize: 10, letterSpacing: 1, color: "var(--cm-text-dim)", background: "var(--cm-terminal)" };
+const tdStyle = { padding: "8px 12px", borderBottom: "0.5px solid var(--cm-border-light)", color: "var(--cm-text-panel-b)" };
+const inlineCode = { fontFamily: F.m, fontSize: 12, padding: "1px 5px", background: "var(--cm-terminal)", border: "0.5px solid var(--cm-border-light)", color: "var(--cm-text-panel-h)" };
+
+function CodeBlock({ lang, children }: { lang: string; children: string }) {
+  return <div style={codeBlockStyle}><span style={labelStyle}>{lang}</span><pre style={{ margin: 0, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{children}</pre></div>;
+}
+
+// ═══ QUICKSTART TAB ═══
+function QuickstartTab() {
+  return (
+    <div>
+      <h1 style={{ fontFamily: F.d, fontWeight: 700, fontSize: 24, letterSpacing: -0.5, color: "var(--cm-text-panel-h)", marginBottom: 24 }}>Quickstart</h1>
+      <p style={P}>Get ClareMesh running in under 5 minutes. Install the schema and transform packages, normalize your first financial record, and validate the output.</p>
+
+      <CodeBlock lang="bash">{`npm install @claremesh/schema @claremesh/transforms`}</CodeBlock>
+
+      <p style={P}>Import a provider-specific transform and your schema types:</p>
+
+      <CodeBlock lang="ts">{`import { transformPlaidTransaction } from '@claremesh/transforms/plaid';
 import type { Transaction } from '@claremesh/schema';
 
 // Your raw Plaid API response
@@ -35,218 +54,297 @@ const txn: Transaction = transformPlaidTransaction(plaidTxn, {
 // currency is 'USD' (uppercase ISO 4217)
 // date is '2026-04-15T00:00:00.000Z' (ISO 8601 UTC)
 // id is a generated UUID v4
-// provider_id preserves 'txn_abc123'` },
-      { type: "p", text: "That's it. The transform handles sign convention, date parsing, currency normalization, and ID generation. Every edge case from the provider corpus is covered." },
-    ]
-  },
-  {
-    id: "schema", title: "Schema reference", content: [
-      { type: "p", text: "The ClareMesh schema defines 5 canonical objects. All financial data from any provider normalizes into these objects." },
-      { type: "h3", text: "Account" },
-      { type: "code", lang: "ts", text: `interface Account {
-  id: string;              // UUID v4
-  org_id: string;          // Organization ID
-  provider_id: string;     // Original ID from provider
-  name: string;            // Account name
-  type: 'asset' | 'liability' | 'equity' | 'revenue' | 'expense';
-  subtype?: string;        // Provider-specific subtype
-  currency: string;        // ISO 4217 (uppercase)
-  parent_id?: string;      // Parent account UUID (hierarchy)
-  institution_name?: string;
-  metadata: Record<string, unknown>;  // Provider-specific fields
-  created_at: string;      // ISO 8601 UTC
-  updated_at: string;
-}` },
-      { type: "h3", text: "Transaction" },
-      { type: "code", lang: "ts", text: `interface Transaction {
-  id: string;              // UUID v4
-  org_id: string;
-  account_id: string;      // FK to Account
-  provider_id: string;     // Original ID from provider
-  amount: number;          // Positive = inflow, negative = outflow
-  currency: string;        // ISO 4217
-  date: string;            // ISO 8601 UTC
-  description: string;     // Merchant name or memo
-  category?: string;
-  status: 'pending' | 'posted' | 'void';
-  entity_id?: string;      // FK to Entity (counterparty)
-  metadata: Record<string, unknown>;
-  created_at: string;
-}` },
-      { type: "h3", text: "Entity" },
-      { type: "code", lang: "ts", text: `interface Entity {
-  id: string;
-  org_id: string;
-  name: string;            // Normalized entity name
-  type: 'vendor' | 'customer' | 'employee' | 'institution';
-  tax_id?: string;         // EIN/TIN for resolution
-  aliases: string[];       // All known names across providers
-  metadata: Record<string, unknown>;
-  created_at: string;
-}` },
-      { type: "h3", text: "Balance" },
-      { type: "code", lang: "ts", text: `interface Balance {
-  id: string;
-  org_id: string;
-  account_id: string;      // FK to Account
-  current: number;         // Current balance
-  available?: number;      // Available balance (if different)
-  currency: string;
-  as_of: string;           // Balance snapshot timestamp
-  created_at: string;
-}` },
-      { type: "h3", text: "Forecast" },
-      { type: "code", lang: "ts", text: `interface Forecast {
-  id: string;
-  org_id: string;
-  account_id: string;
-  period_start: string;
-  period_end: string;
-  projected_balance: number;
-  confidence: number;      // 0-1
-  method: 'linear' | 'ema' | 'monte_carlo';
-  metadata: Record<string, unknown>;
-  created_at: string;
-}` },
-    ]
-  },
-  {
-    id: "transforms", title: "Transforms", content: [
-      { type: "p", text: "Each provider has a dedicated transform module. Transforms handle every known edge case from that provider's API." },
-      { type: "h3", text: "Plaid" },
-      { type: "p", text: "Plaid sign convention is inverted: positive amounts mean money leaving the account. ClareMesh flips this. Pending transactions are normalized with status='pending'. The authorized_date vs date discrepancy is resolved by using date as the canonical timestamp." },
-      { type: "code", lang: "ts", text: `import { transformPlaidTransaction, transformPlaidAccount } from '@claremesh/transforms/plaid';
+// provider_id preserves 'txn_abc123'`}</CodeBlock>
 
-// Batch transform
-const transactions = plaidResponse.transactions.map(txn =>
-  transformPlaidTransaction(txn, { org_id, entity_id })
-);` },
-      { type: "h3", text: "Stripe" },
-      { type: "p", text: "Stripe amounts are in minor units (cents). ClareMesh divides by 100 for most currencies but not for zero-decimal currencies like JPY. Unix timestamps are converted to ISO 8601. Refunds are separate objects linked by charge ID." },
-      { type: "code", lang: "ts", text: `import { transformStripeCharge } from '@claremesh/transforms/stripe';
+      <p style={P}>That's it. The transform handles sign convention, date parsing, currency normalization, and ID generation. Every edge case from the provider corpus is covered.</p>
 
-const txn = transformStripeCharge(charge, { org_id, entity_id });
-// $42.50 charge: Stripe amount=4250 → ClareMesh amount=42.50` },
-      { type: "h3", text: "QuickBooks" },
-      { type: "p", text: "QuickBooks JournalEntry objects contain multiple Lines. Each Line becomes a separate ClareMesh Transaction. PostingType determines sign: Debit = positive, Credit = negative. CurrencyRef is an object, not a string." },
-      { type: "code", lang: "ts", text: `import { transformQBJournalEntry } from '@claremesh/transforms/quickbooks';
-
-// One JournalEntry with 3 lines → 3 ClareMesh Transactions
-const transactions = transformQBJournalEntry(journalEntry, { org_id });` },
-      { type: "h3", text: "Xero" },
-      { type: "p", text: "Xero dates use legacy ASP.NET format: /Date(1234567890000+0000)/. ClareMesh parses these to ISO 8601. Total vs SubTotal depends on tax inclusion. Contacts are embedded objects resolved to Entity references." },
-      { type: "code", lang: "ts", text: `import { transformXeroInvoice } from '@claremesh/transforms/xero';
-
-const txn = transformXeroInvoice(invoice, { org_id, entity_id });` },
-      { type: "h3", text: "CSV" },
-      { type: "p", text: "For custom data sources, the CSV transform accepts a column mapping configuration." },
-      { type: "code", lang: "ts", text: `import { transformCSV } from '@claremesh/transforms/csv';
-
-const transactions = transformCSV(csvData, {
-  org_id,
-  mapping: {
-    amount: 'Amount',
-    date: 'Transaction Date',
-    description: 'Description',
-    currency: 'Currency',
-  },
-});` },
-    ]
-  },
-  {
-    id: "api", title: "API reference", content: [
-      { type: "h3", text: "Transform endpoint" },
-      { type: "code", lang: "bash", text: `POST https://ddevkorgiutduydelhgv.supabase.co/functions/v1/transform
-
-Headers:
-  Authorization: Bearer <your-jwt-token>
-  apikey: <your-anon-key>
-  Content-Type: application/json
-
-Body:
-{
-  "source_type": "plaid" | "stripe" | "quickbooks" | "xero" | "csv",
-  "data": { ... },          // Raw provider response
-  "org_id": "org_...",
-  "entity_id": "ent_..."    // Optional
+      <h2 style={H2}>Next steps</h2>
+      <p style={P}>Explore the <a href="/schema" style={{ color: "var(--cm-slate)" }}>schema browser</a> to see all five object types. Try the <a href="/playground" style={{ color: "var(--cm-slate)" }}>playground</a> to paste raw provider JSON and see normalized output instantly. Read the <a href="/blog/5-bugs-every-plaid-integration-ships" style={{ color: "var(--cm-slate)" }}>Plaid bugs post</a> to understand the edge cases ClareMesh handles for you.</p>
+    </div>
+  );
 }
 
-Response:
-{
-  "records": [ ... ],       // Array of normalized ClareMesh objects
-  "records_in": 10,
-  "records_out": 10,
-  "errors": 0,
-  "duration_ms": 12,
-  "schema_version": "1.0.0"
-}` },
-      { type: "h3", text: "Schema registry endpoint" },
-      { type: "code", lang: "bash", text: `GET https://ddevkorgiutduydelhgv.supabase.co/functions/v1/schema-registry
+// ═══ SCHEMA REFERENCE TAB ═══
+function SchemaTab() {
+  return (
+    <div>
+      <h1 style={{ fontFamily: F.d, fontWeight: 700, fontSize: 24, letterSpacing: -0.5, color: "var(--cm-text-panel-h)", marginBottom: 24 }}>Schema reference</h1>
+      <p style={P}>ClareMesh defines five canonical object types. Every provider's data normalizes into one of these shapes. All types are Zod-validated and exported as both TypeScript types and runtime validators.</p>
 
-No authentication required. Public, CDN-cached.
+      <h2 style={H2}>Account</h2>
+      <p style={P}>Represents a financial account — bank account, credit card, loan, investment, or any container that holds a balance.</p>
+      <table style={tableStyle}>
+        <thead><tr><th style={thStyle}>FIELD</th><th style={thStyle}>TYPE</th><th style={thStyle}>DESCRIPTION</th></tr></thead>
+        <tbody>
+          <tr><td style={tdStyle}><code style={inlineCode}>id</code></td><td style={tdStyle}>uuid</td><td style={tdStyle}>ClareMesh-generated unique identifier</td></tr>
+          <tr><td style={tdStyle}><code style={inlineCode}>provider_id</code></td><td style={tdStyle}>string</td><td style={tdStyle}>Original ID from the provider (e.g. Plaid account_id)</td></tr>
+          <tr><td style={tdStyle}><code style={inlineCode}>provider</code></td><td style={tdStyle}>enum</td><td style={tdStyle}>plaid | stripe | quickbooks | xero | netsuite | csv</td></tr>
+          <tr><td style={tdStyle}><code style={inlineCode}>org_id</code></td><td style={tdStyle}>uuid</td><td style={tdStyle}>Your organization identifier</td></tr>
+          <tr><td style={tdStyle}><code style={inlineCode}>entity_id</code></td><td style={tdStyle}>uuid</td><td style={tdStyle}>The legal entity this account belongs to</td></tr>
+          <tr><td style={tdStyle}><code style={inlineCode}>name</code></td><td style={tdStyle}>string</td><td style={tdStyle}>Human-readable account name</td></tr>
+          <tr><td style={tdStyle}><code style={inlineCode}>type</code></td><td style={tdStyle}>enum</td><td style={tdStyle}>asset | liability | equity | revenue | expense</td></tr>
+          <tr><td style={tdStyle}><code style={inlineCode}>subtype</code></td><td style={tdStyle}>string?</td><td style={tdStyle}>Provider-specific subtype (checking, savings, credit, etc.)</td></tr>
+          <tr><td style={tdStyle}><code style={inlineCode}>currency</code></td><td style={tdStyle}>string</td><td style={tdStyle}>ISO 4217 currency code (uppercase)</td></tr>
+          <tr><td style={tdStyle}><code style={inlineCode}>current_balance</code></td><td style={tdStyle}>number</td><td style={tdStyle}>Balance in major units (not cents). Signed: positive = asset value.</td></tr>
+          <tr><td style={tdStyle}><code style={inlineCode}>status</code></td><td style={tdStyle}>enum</td><td style={tdStyle}>active | inactive | closed</td></tr>
+          <tr><td style={tdStyle}><code style={inlineCode}>synced_at</code></td><td style={tdStyle}>ISO 8601</td><td style={tdStyle}>Last successful sync timestamp (UTC)</td></tr>
+        </tbody>
+      </table>
 
-Response:
-{
-  "version": "1.0.0",
-  "objects": {
-    "account": { ... },
-    "transaction": { ... },
-    "entity": { ... },
-    "balance": { ... },
-    "forecast": { ... }
+      <h2 style={H2}>Transaction</h2>
+      <p style={P}>A single financial movement — debit, credit, transfer, fee, or refund. ClareMesh uses signed amounts: negative = outflow (debit), positive = inflow (credit).</p>
+      <table style={tableStyle}>
+        <thead><tr><th style={thStyle}>FIELD</th><th style={thStyle}>TYPE</th><th style={thStyle}>DESCRIPTION</th></tr></thead>
+        <tbody>
+          <tr><td style={tdStyle}><code style={inlineCode}>id</code></td><td style={tdStyle}>uuid</td><td style={tdStyle}>ClareMesh-generated unique identifier</td></tr>
+          <tr><td style={tdStyle}><code style={inlineCode}>provider_id</code></td><td style={tdStyle}>string</td><td style={tdStyle}>Original transaction ID from provider</td></tr>
+          <tr><td style={tdStyle}><code style={inlineCode}>account_id</code></td><td style={tdStyle}>uuid</td><td style={tdStyle}>Reference to the ClareMesh Account</td></tr>
+          <tr><td style={tdStyle}><code style={inlineCode}>amount</code></td><td style={tdStyle}>number</td><td style={tdStyle}>Signed amount in major units. Negative = debit/outflow.</td></tr>
+          <tr><td style={tdStyle}><code style={inlineCode}>currency</code></td><td style={tdStyle}>string</td><td style={tdStyle}>ISO 4217 currency code</td></tr>
+          <tr><td style={tdStyle}><code style={inlineCode}>date</code></td><td style={tdStyle}>ISO 8601</td><td style={tdStyle}>Transaction date (UTC)</td></tr>
+          <tr><td style={tdStyle}><code style={inlineCode}>description</code></td><td style={tdStyle}>string</td><td style={tdStyle}>Normalized description / merchant name</td></tr>
+          <tr><td style={tdStyle}><code style={inlineCode}>category</code></td><td style={tdStyle}>string?</td><td style={tdStyle}>ClareMesh-normalized category</td></tr>
+          <tr><td style={tdStyle}><code style={inlineCode}>status</code></td><td style={tdStyle}>enum</td><td style={tdStyle}>pending | posted | cancelled</td></tr>
+          <tr><td style={tdStyle}><code style={inlineCode}>metadata</code></td><td style={tdStyle}>object</td><td style={tdStyle}>Provider-specific fields preserved as-is</td></tr>
+        </tbody>
+      </table>
+
+      <h2 style={H2}>Entity</h2>
+      <p style={P}>A legal entity — company, subsidiary, or individual that owns accounts. Entities are the top-level grouping for multi-entity consolidation.</p>
+      <table style={tableStyle}>
+        <thead><tr><th style={thStyle}>FIELD</th><th style={thStyle}>TYPE</th><th style={thStyle}>DESCRIPTION</th></tr></thead>
+        <tbody>
+          <tr><td style={tdStyle}><code style={inlineCode}>id</code></td><td style={tdStyle}>uuid</td><td style={tdStyle}>Unique identifier</td></tr>
+          <tr><td style={tdStyle}><code style={inlineCode}>name</code></td><td style={tdStyle}>string</td><td style={tdStyle}>Legal entity name</td></tr>
+          <tr><td style={tdStyle}><code style={inlineCode}>type</code></td><td style={tdStyle}>enum</td><td style={tdStyle}>company | subsidiary | individual</td></tr>
+          <tr><td style={tdStyle}><code style={inlineCode}>jurisdiction</code></td><td style={tdStyle}>string</td><td style={tdStyle}>ISO 3166 country code</td></tr>
+          <tr><td style={tdStyle}><code style={inlineCode}>fiscal_year_end</code></td><td style={tdStyle}>string</td><td style={tdStyle}>MM-DD format (e.g. "12-31")</td></tr>
+          <tr><td style={tdStyle}><code style={inlineCode}>base_currency</code></td><td style={tdStyle}>string</td><td style={tdStyle}>ISO 4217 reporting currency</td></tr>
+        </tbody>
+      </table>
+
+      <h2 style={H2}>Balance</h2>
+      <p style={P}>A point-in-time balance snapshot for an account. Used for historical balance tracking and reconciliation.</p>
+      <table style={tableStyle}>
+        <thead><tr><th style={thStyle}>FIELD</th><th style={thStyle}>TYPE</th><th style={thStyle}>DESCRIPTION</th></tr></thead>
+        <tbody>
+          <tr><td style={tdStyle}><code style={inlineCode}>account_id</code></td><td style={tdStyle}>uuid</td><td style={tdStyle}>Reference to Account</td></tr>
+          <tr><td style={tdStyle}><code style={inlineCode}>current</code></td><td style={tdStyle}>number</td><td style={tdStyle}>Current balance in major units</td></tr>
+          <tr><td style={tdStyle}><code style={inlineCode}>available</code></td><td style={tdStyle}>number?</td><td style={tdStyle}>Available balance (if reported by provider)</td></tr>
+          <tr><td style={tdStyle}><code style={inlineCode}>as_of</code></td><td style={tdStyle}>ISO 8601</td><td style={tdStyle}>Timestamp of this snapshot</td></tr>
+        </tbody>
+      </table>
+
+      <h2 style={H2}>Forecast</h2>
+      <p style={P}>A projected future value for an account or metric. Used for cash flow forecasting and scenario planning.</p>
+      <table style={tableStyle}>
+        <thead><tr><th style={thStyle}>FIELD</th><th style={thStyle}>TYPE</th><th style={thStyle}>DESCRIPTION</th></tr></thead>
+        <tbody>
+          <tr><td style={tdStyle}><code style={inlineCode}>account_id</code></td><td style={tdStyle}>uuid</td><td style={tdStyle}>Reference to Account</td></tr>
+          <tr><td style={tdStyle}><code style={inlineCode}>period_start</code></td><td style={tdStyle}>ISO 8601</td><td style={tdStyle}>Start of the forecast period</td></tr>
+          <tr><td style={tdStyle}><code style={inlineCode}>period_end</code></td><td style={tdStyle}>ISO 8601</td><td style={tdStyle}>End of the forecast period</td></tr>
+          <tr><td style={tdStyle}><code style={inlineCode}>projected_amount</code></td><td style={tdStyle}>number</td><td style={tdStyle}>Projected value in major units</td></tr>
+          <tr><td style={tdStyle}><code style={inlineCode}>confidence</code></td><td style={tdStyle}>number</td><td style={tdStyle}>Confidence score 0-1</td></tr>
+          <tr><td style={tdStyle}><code style={inlineCode}>method</code></td><td style={tdStyle}>enum</td><td style={tdStyle}>linear | ema | monte_carlo | manual</td></tr>
+        </tbody>
+      </table>
+
+      <h2 style={H2}>Conventions</h2>
+      <p style={P}><strong>Amounts:</strong> Always in major units (dollars, not cents). A $42.50 transaction is <code style={inlineCode}>42.50</code>, not <code style={inlineCode}>4250</code>. Signed: negative = outflow/debit, positive = inflow/credit.</p>
+      <p style={P}><strong>Dates:</strong> ISO 8601 with UTC timezone. Example: <code style={inlineCode}>2026-04-15T00:00:00.000Z</code>.</p>
+      <p style={P}><strong>Currency:</strong> ISO 4217 uppercase. Always <code style={inlineCode}>USD</code>, never <code style={inlineCode}>usd</code>.</p>
+      <p style={P}><strong>IDs:</strong> ClareMesh generates UUID v4 for all <code style={inlineCode}>id</code> fields. Original provider IDs are preserved in <code style={inlineCode}>provider_id</code>.</p>
+    </div>
+  );
+}
+
+// ═══ TRANSFORMS TAB ═══
+function TransformsTab() {
+  return (
+    <div>
+      <h1 style={{ fontFamily: F.d, fontWeight: 700, fontSize: 24, letterSpacing: -0.5, color: "var(--cm-text-panel-h)", marginBottom: 24 }}>Transforms</h1>
+      <p style={P}>Each provider has a dedicated transform module that converts raw API responses into ClareMesh schema objects. Transforms handle sign convention, date parsing, currency normalization, status mapping, and edge cases specific to each provider.</p>
+
+      <h2 style={H2}>Available transforms</h2>
+      <table style={tableStyle}>
+        <thead><tr><th style={thStyle}>PROVIDER</th><th style={thStyle}>IMPORT PATH</th><th style={thStyle}>OBJECTS</th></tr></thead>
+        <tbody>
+          <tr><td style={tdStyle}>Plaid</td><td style={tdStyle}><code style={inlineCode}>@claremesh/transforms/plaid</code></td><td style={tdStyle}>Account, Transaction, Balance</td></tr>
+          <tr><td style={tdStyle}>Stripe</td><td style={tdStyle}><code style={inlineCode}>@claremesh/transforms/stripe</code></td><td style={tdStyle}>Account, Transaction</td></tr>
+          <tr><td style={tdStyle}>QuickBooks</td><td style={tdStyle}><code style={inlineCode}>@claremesh/transforms/quickbooks</code></td><td style={tdStyle}>Account, Transaction, Entity</td></tr>
+          <tr><td style={tdStyle}>Xero</td><td style={tdStyle}><code style={inlineCode}>@claremesh/transforms/xero</code></td><td style={tdStyle}>Account, Transaction, Entity</td></tr>
+          <tr><td style={tdStyle}>NetSuite</td><td style={tdStyle}><code style={inlineCode}>@claremesh/transforms/netsuite</code></td><td style={tdStyle}>Account, Transaction, Entity</td></tr>
+          <tr><td style={tdStyle}>CSV</td><td style={tdStyle}><code style={inlineCode}>@claremesh/transforms/csv</code></td><td style={tdStyle}>Transaction (configurable column mapping)</td></tr>
+        </tbody>
+      </table>
+
+      <h2 style={H2}>Plaid transforms</h2>
+      <p style={P}>Plaid uses positive amounts for outflows and negative for inflows — the opposite of ClareMesh. The transform flips the sign automatically.</p>
+      <CodeBlock lang="ts">{`import { transformPlaidTransaction, transformPlaidAccount } from '@claremesh/transforms/plaid';
+
+// Transform a single transaction
+const txn = transformPlaidTransaction(plaidResponse, { org_id, entity_id });
+
+// Transform an account with balance
+const acct = transformPlaidAccount(plaidAccount, { org_id, entity_id });`}</CodeBlock>
+
+      <h3 style={H3}>Plaid edge cases handled</h3>
+      <p style={P}><strong>Sign flip:</strong> Plaid positive = outflow becomes ClareMesh negative. <strong>Pending transactions:</strong> Status mapped to "pending", updated to "posted" on re-sync. <strong>Currency fallback:</strong> Uses <code style={inlineCode}>unofficial_currency_code</code> when <code style={inlineCode}>iso_currency_code</code> is null. <strong>Category mapping:</strong> Plaid's hierarchical categories flattened to ClareMesh single-level. <strong>Date parsing:</strong> Plaid returns date-only strings, ClareMesh converts to full ISO 8601 UTC.</p>
+
+      <h2 style={H2}>Stripe transforms</h2>
+      <p style={P}>Stripe uses amounts in cents (minor units). The transform divides by 100 to convert to major units.</p>
+      <CodeBlock lang="ts">{`import { transformStripeCharge } from '@claremesh/transforms/stripe';
+
+// Stripe charge of 4250 cents → ClareMesh amount of -42.50
+const txn = transformStripeCharge(stripeCharge, { org_id, entity_id });`}</CodeBlock>
+
+      <h2 style={H2}>QuickBooks transforms</h2>
+      <p style={P}>QuickBooks journal entries use debit/credit columns instead of signed amounts. The transform normalizes to signed amounts based on the account type.</p>
+      <CodeBlock lang="ts">{`import { transformQBJournalEntry } from '@claremesh/transforms/quickbooks';
+
+const txns = transformQBJournalEntry(qbEntry, { org_id, entity_id });
+// Returns an array — one Transaction per journal line`}</CodeBlock>
+
+      <h2 style={H2}>Transform options</h2>
+      <p style={P}>All transforms accept a second argument with context options:</p>
+      <table style={tableStyle}>
+        <thead><tr><th style={thStyle}>OPTION</th><th style={thStyle}>TYPE</th><th style={thStyle}>REQUIRED</th><th style={thStyle}>DESCRIPTION</th></tr></thead>
+        <tbody>
+          <tr><td style={tdStyle}><code style={inlineCode}>org_id</code></td><td style={tdStyle}>string</td><td style={tdStyle}>Yes</td><td style={tdStyle}>Your organization ID</td></tr>
+          <tr><td style={tdStyle}><code style={inlineCode}>entity_id</code></td><td style={tdStyle}>string</td><td style={tdStyle}>Yes</td><td style={tdStyle}>The legal entity owning this data</td></tr>
+          <tr><td style={tdStyle}><code style={inlineCode}>default_currency</code></td><td style={tdStyle}>string</td><td style={tdStyle}>No</td><td style={tdStyle}>Fallback currency if provider doesn't specify</td></tr>
+          <tr><td style={tdStyle}><code style={inlineCode}>timezone</code></td><td style={tdStyle}>string</td><td style={tdStyle}>No</td><td style={tdStyle}>IANA timezone for date-only values (default: UTC)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+// ═══ API REFERENCE TAB ═══
+function ApiTab() {
+  return (
+    <div>
+      <h1 style={{ fontFamily: F.d, fontWeight: 700, fontSize: 24, letterSpacing: -0.5, color: "var(--cm-text-panel-h)", marginBottom: 24 }}>API reference</h1>
+      <p style={P}>The ClareMesh API is available on paid plans (Build and above). Authentication is via API key passed as a Bearer token. All endpoints are served from your Supabase project's edge functions.</p>
+
+      <h2 style={H2}>Authentication</h2>
+      <CodeBlock lang="bash">{`curl -X POST https://your-project.supabase.co/functions/v1/transform \\
+  -H "Authorization: Bearer cm_your_api_key" \\
+  -H "Content-Type: application/json" \\
+  -d '{"provider": "plaid", "data": {...}}'`}</CodeBlock>
+
+      <h2 style={H2}>POST /functions/v1/transform</h2>
+      <p style={P}>Transform raw provider data into ClareMesh schema. Accepts a single record or a batch of up to 1,000 records.</p>
+      <h3 style={H3}>Request body</h3>
+      <CodeBlock lang="json">{`{
+  "provider": "plaid",
+  "type": "transaction",
+  "data": { ... },
+  "options": {
+    "org_id": "your-org-id",
+    "entity_id": "your-entity-id"
   }
-}` },
-      { type: "h3", text: "Compliance dashboard endpoint" },
-      { type: "code", lang: "bash", text: `GET https://ddevkorgiutduydelhgv.supabase.co/functions/v1/compliance-dashboard
+}`}</CodeBlock>
 
-Headers:
-  Authorization: Bearer <your-jwt-token>
-  apikey: <your-anon-key>
-
-Query params:
-  ?jurisdiction=US          // Filter by jurisdiction code
-
-Response:
-{
-  "controls": [ ... ],
-  "frameworks": ["SOC 2", "GDPR", ...],
-  "jurisdiction": "US"
-}` },
-      { type: "h3", text: "Authentication" },
-      { type: "p", text: "All authenticated endpoints require two headers: Authorization (Bearer JWT from Supabase auth) and apikey (your project's anon key). The JWT identifies the user; the anon key identifies the project. RLS policies enforce org-level isolation automatically." },
-      { type: "h3", text: "Error codes" },
-      { type: "code", lang: "json", text: `{
-  "AUTH_001": "Missing authorization header",
-  "AUTH_002": "Invalid or expired token",
-  "TRANSFORM_001": "Unknown source_type",
-  "TRANSFORM_002": "Invalid input data shape",
-  "QUOTA_001": "Transform quota exceeded for current billing period",
-  "RATE_001": "Rate limit exceeded (see Retry-After header)",
-  "PLAN_001": "Feature not available on current plan",
-  "COMPLIANCE_001": "Data residency violation"
-}` },
-    ]
+      <h3 style={H3}>Response</h3>
+      <CodeBlock lang="json">{`{
+  "success": true,
+  "data": {
+    "id": "uuid-v4",
+    "provider_id": "original-id",
+    "amount": -42.50,
+    "currency": "USD",
+    "date": "2026-04-15T00:00:00.000Z",
+    "status": "posted"
   },
-  {
-    id: "billing", title: "Plans and billing", content: [
-      { type: "p", text: "ClareMesh uses usage-based pricing. Every plan includes a base allocation of transforms per month. Overages are billed at the end of the billing cycle — transforms are never throttled." },
-      { type: "h3", text: "Plan comparison" },
-      { type: "code", lang: "text", text: `Plan        Monthly    Transforms    Connectors  Sync    Compliance  Audit
-────────────────────────────────────────────────────────────────────────────
-Open        $0         1,000/mo      1           No      0           7 days
-Build       $199/mo    50,000/mo     5           No      4 controls  30 days
-Scale       $799/mo    500,000/mo    Unlimited   Yes     14 controls 1 year
-Enterprise  Custom     Unlimited     Unlimited   Yes     29 controls Forever` },
-      { type: "p", text: "Annual billing saves 25%. All paid plans include a 30-day money-back guarantee. Your price never increases — early adopters keep their signup-era pricing forever." },
-      { type: "h3", text: "Loyalty milestones" },
-      { type: "p", text: "ClareMesh rewards tenure with permanent feature unlocks. At 3 months: +2,000 transforms. At 6 months: 30-day audit log on any plan. At 12 months: +5,000 transforms and custom transforms. Milestones never expire, even if you change plans." },
-    ]
-  },
+  "lineage": {
+    "transform_version": "2.4.1",
+    "provider": "plaid",
+    "transformed_at": "2026-04-16T18:00:00.000Z"
+  }
+}`}</CodeBlock>
+
+      <h2 style={H2}>POST /functions/v1/transform/batch</h2>
+      <p style={P}>Transform up to 1,000 records in a single request. Same format as single transform but <code style={inlineCode}>data</code> is an array.</p>
+
+      <h2 style={H2}>GET /functions/v1/schema-registry</h2>
+      <p style={P}>Returns the current schema version and all object type definitions as JSON Schema.</p>
+
+      <h2 style={H2}>Error codes</h2>
+      <table style={tableStyle}>
+        <thead><tr><th style={thStyle}>CODE</th><th style={thStyle}>STATUS</th><th style={thStyle}>DESCRIPTION</th></tr></thead>
+        <tbody>
+          <tr><td style={tdStyle}><code style={inlineCode}>invalid_provider</code></td><td style={tdStyle}>400</td><td style={tdStyle}>Provider not recognized or not supported</td></tr>
+          <tr><td style={tdStyle}><code style={inlineCode}>validation_error</code></td><td style={tdStyle}>400</td><td style={tdStyle}>Input data fails Zod validation</td></tr>
+          <tr><td style={tdStyle}><code style={inlineCode}>auth_required</code></td><td style={tdStyle}>401</td><td style={tdStyle}>Missing or invalid API key</td></tr>
+          <tr><td style={tdStyle}><code style={inlineCode}>plan_exceeded</code></td><td style={tdStyle}>403</td><td style={tdStyle}>Transform count exceeds plan limit</td></tr>
+          <tr><td style={tdStyle}><code style={inlineCode}>rate_limited</code></td><td style={tdStyle}>429</td><td style={tdStyle}>Too many requests — wait and retry</td></tr>
+          <tr><td style={tdStyle}><code style={inlineCode}>transform_error</code></td><td style={tdStyle}>500</td><td style={tdStyle}>Internal transform failure — report as bug</td></tr>
+        </tbody>
+      </table>
+
+      <h2 style={H2}>Rate limits</h2>
+      <table style={tableStyle}>
+        <thead><tr><th style={thStyle}>PLAN</th><th style={thStyle}>REQUESTS/MIN</th><th style={thStyle}>BATCH SIZE</th></tr></thead>
+        <tbody>
+          <tr><td style={tdStyle}>Build</td><td style={tdStyle}>60</td><td style={tdStyle}>100</td></tr>
+          <tr><td style={tdStyle}>Scale</td><td style={tdStyle}>300</td><td style={tdStyle}>1,000</td></tr>
+          <tr><td style={tdStyle}>Enterprise</td><td style={tdStyle}>Custom</td><td style={tdStyle}>Custom</td></tr>
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+// ═══ PLANS TAB ═══
+function PlansTab() {
+  return (
+    <div>
+      <h1 style={{ fontFamily: F.d, fontWeight: 700, fontSize: 24, letterSpacing: -0.5, color: "var(--cm-text-panel-h)", marginBottom: 24 }}>Plans and billing</h1>
+
+      <table style={tableStyle}>
+        <thead><tr><th style={thStyle}>FEATURE</th><th style={thStyle}>OPEN (FREE)</th><th style={thStyle}>BUILD ($199/MO)</th><th style={thStyle}>SCALE ($799/MO)</th><th style={thStyle}>ENTERPRISE</th></tr></thead>
+        <tbody>
+          <tr><td style={tdStyle}>Schema + transforms</td><td style={tdStyle}>Unlimited</td><td style={tdStyle}>Unlimited</td><td style={tdStyle}>Unlimited</td><td style={tdStyle}>Unlimited</td></tr>
+          <tr><td style={tdStyle}>Transforms/month</td><td style={tdStyle}>1,000</td><td style={tdStyle}>50,000</td><td style={tdStyle}>500,000</td><td style={tdStyle}>Unlimited</td></tr>
+          <tr><td style={tdStyle}>API access</td><td style={tdStyle}>—</td><td style={tdStyle}>Yes</td><td style={tdStyle}>Yes</td><td style={tdStyle}>Yes</td></tr>
+          <tr><td style={tdStyle}>Bi-directional sync</td><td style={tdStyle}>—</td><td style={tdStyle}>—</td><td style={tdStyle}>Yes</td><td style={tdStyle}>Yes</td></tr>
+          <tr><td style={tdStyle}>Compliance dashboard</td><td style={tdStyle}>Basic</td><td style={tdStyle}>Full</td><td style={tdStyle}>Full + export</td><td style={tdStyle}>Full + audit</td></tr>
+          <tr><td style={tdStyle}>Team members</td><td style={tdStyle}>1</td><td style={tdStyle}>5</td><td style={tdStyle}>25</td><td style={tdStyle}>Unlimited</td></tr>
+          <tr><td style={tdStyle}>Support</td><td style={tdStyle}>Community</td><td style={tdStyle}>Email</td><td style={tdStyle}>Priority</td><td style={tdStyle}>Dedicated + SLA</td></tr>
+          <tr><td style={tdStyle}>Data residency</td><td style={tdStyle}>US</td><td style={tdStyle}>US</td><td style={tdStyle}>US, EU</td><td style={tdStyle}>Custom region</td></tr>
+        </tbody>
+      </table>
+
+      <h2 style={H2}>Usage metering</h2>
+      <p style={P}>Transform usage is metered per calendar month. Each call to a transform function (whether via npm package or API) counts as one transform. Batch transforms count as one transform per record in the batch. Usage resets on the first of each month at midnight UTC.</p>
+
+      <h2 style={H2}>Overages</h2>
+      <p style={P}>If you exceed your plan's monthly transform limit, additional transforms are billed at the following rates: Build plan: $0.005/transform, Scale plan: $0.002/transform. You can set a hard cap in Settings to prevent overages. Enterprise plans have no overage charges.</p>
+
+      <h2 style={H2}>Billing cycle</h2>
+      <p style={P}>Subscriptions are billed monthly or annually (annual saves ~17%). You can upgrade, downgrade, or cancel at any time. Upgrades take effect immediately with prorated billing. Downgrades take effect at the end of the current billing period. Cancellation triggers a 30-day grace period during which you can export your data.</p>
+
+      <h2 style={H2}>Managing your subscription</h2>
+      <p style={P}>You can manage your subscription from <a href="/settings?tab=billing" style={{ color: "var(--cm-slate)" }}>Settings → Billing</a>. The billing tab shows your current plan, usage, and provides access to the Stripe Customer Portal for payment method updates and invoice downloads.</p>
+
+      <h2 style={H2}>Enterprise</h2>
+      <p style={P}>Enterprise plans include dedicated infrastructure, custom SLAs, SOC 2 Type II reports, dedicated support engineer, and custom data residency regions. Contact <a href="mailto:malik@claremesh.com" style={{ color: "var(--cm-slate)" }}>malik@claremesh.com</a> for enterprise pricing.</p>
+    </div>
+  );
+}
+
+// ═══ MAIN DOCS PAGE ═══
+const TABS = [
+  { key: "quickstart", label: "Quickstart" },
+  { key: "schema", label: "Schema reference" },
+  { key: "transforms", label: "Transforms" },
+  { key: "api", label: "API reference" },
+  { key: "plans", label: "Plans and billing" },
 ];
 
 function DocsContent() {
-  const [activeSection, setActiveSection] = useState("quickstart");
-  const section = SECTIONS.find(s => s.id === activeSection) || SECTIONS[0];
+  const [activeTab, setActiveTab] = useState("quickstart");
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--cm-panel)", fontFamily: F.b }}>
@@ -259,46 +357,37 @@ function DocsContent() {
         <div style={{ display: "flex", gap: 16 }}>
           <a href="/pricing" style={{ fontSize: 12, color: "var(--cm-text-panel-b)", textDecoration: "none" }}>Pricing</a>
           <a href="/schema" style={{ fontSize: 12, color: "var(--cm-text-panel-b)", textDecoration: "none" }}>Schema browser</a>
+          <a href="/playground" style={{ fontSize: 12, color: "var(--cm-text-panel-b)", textDecoration: "none" }}>Playground</a>
           <a href="/signup" style={{ fontSize: 12, fontWeight: 500, color: "var(--cm-text-panel-h)", textDecoration: "none", padding: "4px 12px", border: "0.5px solid var(--cm-border-light)" }}>Get started</a>
         </div>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "200px 1fr", maxWidth: 1040, margin: "0 auto" }}>
-        {/* Sidebar */}
-        <div style={{ borderRight: "0.5px solid var(--cm-border-light)", padding: "24px 16px", position: "sticky", top: 0, height: "fit-content" }}>
-          {SECTIONS.map(s => (
-            <button key={s.id} type="button" onClick={() => setActiveSection(s.id)} style={{
+        <div style={{ borderRight: "0.5px solid var(--cm-border-light)", padding: "24px 16px", position: "sticky" as const, top: 0, height: "fit-content" }}>
+          {TABS.map((tab) => (
+            <button key={tab.key} onClick={() => setActiveTab(tab.key)} style={{
               display: "block", width: "100%", textAlign: "left", padding: "8px 12px", marginBottom: 2,
               fontSize: 12, fontFamily: F.b, cursor: "pointer", border: "none",
-              background: activeSection === s.id ? "var(--cm-slate)" : "transparent",
-              color: activeSection === s.id ? "#fff" : "var(--cm-text-panel-b)",
-              fontWeight: activeSection === s.id ? 500 : 400,
-            }}>{s.title}</button>
+              background: activeTab === tab.key ? "var(--cm-slate)" : "transparent",
+              color: activeTab === tab.key ? "#fff" : "var(--cm-text-panel-b)",
+              fontWeight: activeTab === tab.key ? 500 : 400,
+            }}>
+              {tab.label}
+            </button>
           ))}
         </div>
 
-        {/* Content */}
         <div style={{ padding: "32px 40px", maxWidth: 720 }}>
-          <h1 style={{ fontFamily: F.d, fontWeight: 700, fontSize: 24, letterSpacing: -0.5, color: "var(--cm-text-panel-h)", marginBottom: 24 }}>{section.title}</h1>
-
-          {section.content.map((block, i) => {
-            if (block.type === "p") return <p key={i} style={{ fontSize: 13, color: "var(--cm-text-panel-b)", lineHeight: 1.8, marginBottom: 16 }}>{block.text}</p>;
-            if (block.type === "h3") return <h3 key={i} style={{ fontFamily: F.d, fontWeight: 600, fontSize: 16, color: "var(--cm-text-panel-h)", marginTop: 28, marginBottom: 12 }}>{block.text}</h3>;
-            if (block.type === "code") return (
-              <div key={i} style={{ marginBottom: 16, position: "relative" }}>
-                <div style={{ position: "absolute", top: 0, right: 0, padding: "4px 8px", fontFamily: F.m, fontSize: 9, color: "var(--cm-text-dim)" }}>{block.lang}</div>
-                <pre style={{ padding: "16px 16px 16px 16px", background: "var(--cm-terminal)", border: "0.5px solid var(--cm-terminal-bd)", fontFamily: F.m, fontSize: 11, color: "var(--cm-text-hero-b)", lineHeight: 1.8, overflowX: "auto", whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{block.text}</pre>
-              </div>
-            );
-            return null;
-          })}
+          {activeTab === "quickstart" && <QuickstartTab />}
+          {activeTab === "schema" && <SchemaTab />}
+          {activeTab === "transforms" && <TransformsTab />}
+          {activeTab === "api" && <ApiTab />}
+          {activeTab === "plans" && <PlansTab />}
         </div>
       </div>
     </div>
   );
 }
 
-export default function DocsPage() {
-  return <Suspense><DocsContent /></Suspense>;
-}
+export default function DocsPage() { return <Suspense><DocsContent /></Suspense>; }
 
