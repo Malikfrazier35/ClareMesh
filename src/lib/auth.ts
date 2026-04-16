@@ -16,6 +16,7 @@ export type UserProfile = {
   tos_accepted_at: string | null;
   privacy_accepted_at: string | null;
   last_password_changed_at: string | null;
+  created_at: string;
 };
 
 export type Organization = {
@@ -25,6 +26,8 @@ export type Organization = {
   plan: "open" | "build" | "scale" | "enterprise";
   suspended_at: string | null;
   stripe_customer_id: string | null;
+  deletion_requested_at: string | null;
+  deletion_grace_ends_at: string | null;
 };
 
 export async function getAuthState() {

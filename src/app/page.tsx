@@ -280,10 +280,15 @@ export default function Home() {
         {/* FOOTER */}
         <footer style={{ background: "rgba(20,19,18,0.6)", backdropFilter: "blur(20px) saturate(1.3)", WebkitBackdropFilter: "blur(20px) saturate(1.3)",borderTop:bdd,position:"relative",zIndex:2 }}>
           <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",borderBottom:bdd }}>
-            {[{t:"PRODUCT",ls:["Schema","Transforms","Sync","Pricing","Changelog"]},{t:"DEVELOPERS",ls:["Documentation","API reference","Quickstart","Status"]},{t:"COMPANY",ls:["About","Blog","Security","Contact"]},{t:"LEGAL",ls:["Privacy","Terms","DPA","Sub-processors"]}].map((col,i)=>(
+            {[
+              {t:"PRODUCT",ls:[{l:"Schema",h:"/schema"},{l:"Transforms",h:"/transforms"},{l:"Sync",h:"/sync"},{l:"Pricing",h:"/pricing"},{l:"Changelog",h:"/blog"}]},
+              {t:"DEVELOPERS",ls:[{l:"Documentation",h:"/docs"},{l:"API reference",h:"/docs"},{l:"Quickstart",h:"/docs"},{l:"Status",h:"/security/trust-center"}]},
+              {t:"COMPANY",ls:[{l:"About",h:"/"},{l:"Blog",h:"/blog"},{l:"Security",h:"/security"},{l:"Contact",h:"/contact"}]},
+              {t:"LEGAL",ls:[{l:"Privacy",h:"/privacy"},{l:"Terms",h:"/terms"},{l:"DPA",h:"/dpa"},{l:"Sub-processors",h:"/security/sub-processors"}]},
+            ].map((col,i)=>(
               <div key={i} style={{ padding:32,borderRight:i<3?bdd:"none" }}>
                 <p style={m({ fontSize:10,letterSpacing:1.5,color:"var(--cm-footer-c)",marginBottom:16 })}>{col.t}</p>
-                {col.ls.map(link=>(<a key={link} href="/schema" className="cm-fl-d" style={{ display:"block",fontSize:13,color:"var(--cm-text-mono)",textDecoration:"none",marginBottom:10 }}>{link}</a>))}
+                {col.ls.map(link=>(<a key={link.l} href={link.h} className="cm-fl-d" style={{ display:"block",fontSize:13,color:"var(--cm-text-mono)",textDecoration:"none",marginBottom:10 }}>{link.l}</a>))}
               </div>
             ))}
           </div>

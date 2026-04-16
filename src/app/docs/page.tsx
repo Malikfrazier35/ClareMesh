@@ -228,47 +228,50 @@ function ApiTab() {
       <p style={P}>The ClareMesh API is available on paid plans (Build and above). Authentication is via API key passed as a Bearer token. All endpoints are served from your Supabase project's edge functions.</p>
 
       <h2 style={H2}>Authentication</h2>
-      <CodeBlock lang="bash">{`curl -X POST https://your-project.supabase.co/functions/v1/transform \\
-  -H "Authorization: Bearer cm_your_api_key" \\
+      <CodeBlock lang="bash">{`curl -X POST https://ddevkorgiutduydelhgv.supabase.co/functions/v1/transform \\
+  -H "Authorization: Bearer YOUR_SUPABASE_JWT" \\
   -H "Content-Type: application/json" \\
-  -d '{"provider": "plaid", "data": {...}}'`}</CodeBlock>
+  -d '{"provider":"plaid","records":[{...}]}'`}</CodeBlock>
 
       <h2 style={H2}>POST /functions/v1/transform</h2>
-      <p style={P}>Transform raw provider data into ClareMesh schema. Accepts a single record or a batch of up to 1,000 records.</p>
+      <p style={P}>Transform raw provider data into ClareMesh schema. Accepts an array of up to 1,000 records per request — a single record is just an array of length 1.</p>
       <h3 style={H3}>Request body</h3>
       <CodeBlock lang="json">{`{
   "provider": "plaid",
-  "type": "transaction",
-  "data": { ... },
-  "options": {
-    "org_id": "your-org-id",
-    "entity_id": "your-entity-id"
-  }
+  "records": [ { ... } ],
+  "connector_id": "optional-uuid"
 }`}</CodeBlock>
+      <p style={P}>Supported providers: <code style={inlineCode}>plaid</code>, <code style={inlineCode}>stripe</code>, <code style={inlineCode}>quickbooks</code>, <code style={inlineCode}>xero</code>, <code style={inlineCode}>csv</code>.</p>
 
       <h3 style={H3}>Response</h3>
       <CodeBlock lang="json">{`{
-  "success": true,
-  "data": {
-    "id": "uuid-v4",
-    "provider_id": "original-id",
-    "amount": -42.50,
-    "currency": "USD",
-    "date": "2026-04-15T00:00:00.000Z",
-    "status": "posted"
-  },
-  "lineage": {
-    "transform_version": "2.4.1",
-    "provider": "plaid",
-    "transformed_at": "2026-04-16T18:00:00.000Z"
-  }
+  "schema_version": "1.0.0",
+  "provider": "plaid",
+  "records_in": 1,
+  "records_out": 1,
+  "errors": 0,
+  "duration_ms": 42,
+  "data": [
+    {
+      "id": "uuid-v4",
+      "provider_id": "original-id",
+      "amount": -42.50,
+      "currency": "USD",
+      "date": "2026-04-15T00:00:00.000Z",
+      "pending": false
+    }
+  ]
 }`}</CodeBlock>
-
-      <h2 style={H2}>POST /functions/v1/transform/batch</h2>
-      <p style={P}>Transform up to 1,000 records in a single request. Same format as single transform but <code style={inlineCode}>data</code> is an array.</p>
+      <p style={P}>Response headers include <code style={inlineCode}>X-ClareMesh-Schema</code> (schema version) and <code style={inlineCode}>X-ClareMesh-Duration</code> (processing time).</p>
 
       <h2 style={H2}>GET /functions/v1/schema-registry</h2>
-      <p style={P}>Returns the current schema version and all object type definitions as JSON Schema.</p>
+      <p style={P}>Returns the current schema version and all object type definitions (Entity, Account, Balance, Transaction, Forecast) with field types, required flags, and enum values. Public endpoint — no auth required.</p>
+
+      <h2 style={H2}>GET /functions/v1/compliance-dashboard</h2>
+      <p style={P}>Returns your organization's control status across the 61-control compliance framework. Requires Scale plan or above.</p>
+
+      <h2 style={H2}>POST /functions/v1/stripe-billing</h2>
+      <p style={P}>Internal endpoint for Stripe webhook events and checkout session creation. Not for direct customer use.</p>
 
       <h2 style={H2}>Error codes</h2>
       <table style={tableStyle}>
