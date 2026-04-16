@@ -9,6 +9,15 @@ const F = {
 
 const POSTS = [
   {
+    slug: "why-month-end-close-still-takes-5-days",
+    title: "Why month-end close still takes 5 days in 2026",
+    excerpt: "It's Monday morning of close week. Somewhere, a controller is staring at 17 open browser tabs. If you run finance in 2026, this scene is familiar. Here's where the five days actually go — and what would need to be true to get to one.",
+    date: "April 23, 2026",
+    readTime: "14 min",
+    category: "Finance Operations",
+    tags: ["Month-End Close", "Finance Ops", "Data Architecture"],
+  },
+  {
     slug: "5-bugs-every-plaid-integration-ships",
     title: "5 bugs every Plaid integration ships (and how to catch them)",
     excerpt: "Every team that integrates Plaid for the first time writes roughly the same code, ships it to production, and then — six to eighteen months later — discovers the same five bugs. Here they are, and how to catch them.",
@@ -48,12 +57,12 @@ function BlogIndexContent() {
 
       <div style={{ padding: "0 32px 64px", maxWidth: 720, margin: "0 auto" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 0, borderTop: "0.5px solid var(--cm-border-light)" }}>
-          {POSTS.map((post, i) => (
+          {POSTS.map((post) => (
             <a key={post.slug} href={`/blog/${post.slug}`} style={{
               display: "block", padding: "32px 0", borderBottom: "0.5px solid var(--cm-border-light)",
               textDecoration: "none",
             }}>
-              <div style={{ display: "flex", gap: 16, alignItems: "center", marginBottom: 12 }}>
+              <div style={{ display: "flex", gap: 16, alignItems: "center", marginBottom: 12, flexWrap: "wrap" }}>
                 <span style={{ fontFamily: F.m, fontSize: 10, letterSpacing: 1.5, color: "var(--cm-copper)" }}>{post.category.toUpperCase()}</span>
                 <span style={{ fontFamily: F.m, fontSize: 10, color: "var(--cm-text-dim)" }}>{post.date}</span>
                 <span style={{ fontFamily: F.m, fontSize: 10, color: "var(--cm-text-dim)" }}>· {post.readTime} read</span>
@@ -64,7 +73,7 @@ function BlogIndexContent() {
               <p style={{ fontSize: 14, lineHeight: 1.7, color: "var(--cm-text-panel-b)", marginBottom: 12 }}>
                 {post.excerpt}
               </p>
-              <div style={{ display: "flex", gap: 6 }}>
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                 {post.tags.map(tag => (
                   <span key={tag} style={{ fontFamily: F.m, fontSize: 9, padding: "2px 8px", border: "0.5px solid var(--cm-border-light)", color: "var(--cm-text-panel-b)" }}>{tag}</span>
                 ))}
@@ -74,12 +83,12 @@ function BlogIndexContent() {
         </div>
 
         <div style={{ marginTop: 48, padding: "24px", border: "0.5px solid var(--cm-border-light)", background: "var(--cm-terminal)", textAlign: "center" }}>
-          <p style={{ fontFamily: F.m, fontSize: 10, letterSpacing: 1.5, color: "var(--cm-copper)", marginBottom: 8 }}>MORE COMING SOON</p>
+          <p style={{ fontFamily: F.m, fontSize: 10, letterSpacing: 1.5, color: "var(--cm-copper)", marginBottom: 8 }}>NEW POSTS WEEKLY</p>
           <p style={{ fontSize: 13, color: "var(--cm-text-panel-b)", lineHeight: 1.6, maxWidth: 420, margin: "0 auto" }}>
-            We publish technical deep-dives weekly. Follow the GitHub repo for release notes or check back here.
+            We publish technical deep-dives covering fintech infrastructure, data normalization, compliance, and close acceleration.
           </p>
           <a href="https://github.com/Malikfrazier35/ClareMesh" target="_blank" rel="noopener" style={{ display: "inline-block", marginTop: 12, fontFamily: F.m, fontSize: 11, color: "var(--cm-slate)", textDecoration: "none" }}>
-            github.com/Malikfrazier35/ClareMesh →
+            Follow on GitHub →
           </a>
         </div>
       </div>

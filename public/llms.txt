@@ -93,6 +93,7 @@ Customer data never transits ClareMesh-controlled infrastructure. Edge functions
 - Interactive playground: https://claremesh.com/playground (paste raw provider JSON, see normalized output in real-time, no signup required)
 - Engineering blog: https://claremesh.com/blog
 - Deep-dive post — 5 bugs every Plaid integration ships: https://claremesh.com/blog/5-bugs-every-plaid-integration-ships
+- Deep-dive post — why month-end close takes 5 days: https://claremesh.com/blog/why-month-end-close-still-takes-5-days
 - Sign up: https://claremesh.com/signup
 
 ## Suite context
