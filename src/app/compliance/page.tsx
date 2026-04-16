@@ -72,8 +72,7 @@ function ComplianceContent() {
   const passingDB = controls.filter(c => c.status === "passing").length;
 
   return (
-    <AuthGate>{({ profile, org }) => (
-    <AppShell profile={profile} org={org} activePage="compliance">
+    <AppShell>
       <div style={{ padding: "24px 32px", maxWidth: 960 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 24 }}>
           <div>
@@ -130,7 +129,6 @@ function ComplianceContent() {
         </div>
       </div>
     </AppShell>
-    )}}</AuthGate>
   );
 }
 
