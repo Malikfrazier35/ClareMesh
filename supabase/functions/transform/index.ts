@@ -107,6 +107,53 @@ function transformCSVRow(raw: any): any {
   };
 }
 
+// ═══ AUTH: accept both Supabase JWTs and cm_* API keys ═══
+
+async function sha256Hex(input: string): Promise<string> {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(input));
+  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function resolveAuth(authHeader: string): Promise<
+  | { ok: true; org_id: string; user_id: string | null; auth_method: "jwt" | "api_key"; scopes: string[] }
+  | { ok: false; status: number; error: string }
+> {
+  const token = authHeader.replace(/^Bearer\s+/i, "").trim();
+
+  // cm_* API key path — lookup via service_role + verify_api_key RPC
+  if (token.startsWith("cm_live_") || token.startsWith("cm_test_")) {
+    const admin = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
+    const hash = await sha256Hex(token);
+    const { data, error } = await admin.rpc("verify_api_key", { p_key_hash: hash });
+    if (error || !data || data.length === 0) {
+      return { ok: false, status: 401, error: "Invalid or revoked API key" };
+    }
+    const row = data[0];
+    const scopes = (row.scopes || []) as string[];
+    if (!scopes.includes("transform:write")) {
+      return { ok: false, status: 403, error: "API key missing required scope: transform:write" };
+    }
+    return { ok: true, org_id: row.org_id, user_id: null, auth_method: "api_key", scopes };
+  }
+
+  // JWT path — use the user's token
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL") ?? "",
+    Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+    { global: { headers: { Authorization: authHeader } } }
+  );
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) return { ok: false, status: 401, error: "Invalid token" };
+
+  const { data: profile } = await supabase.from("profiles").select("org_id").eq("id", user.id).single();
+  if (!profile) return { ok: false, status: 404, error: "No organization found" };
+
+  return { ok: true, org_id: profile.org_id, user_id: user.id, auth_method: "jwt", scopes: ["*"] };
+}
+
 // ═══ MAIN HANDLER ═══
 
 Deno.serve(async (req: Request) => {
@@ -119,18 +166,14 @@ Deno.serve(async (req: Request) => {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) return new Response(JSON.stringify({ error: "Missing authorization" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
+    const auth = await resolveAuth(authHeader);
+    if (!auth.ok) return new Response(JSON.stringify({ error: auth.error }), { status: auth.status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+
+    // Service-role client for logging (works for both auth methods)
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      { global: { headers: { Authorization: authHeader } } }
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
-
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-
-    // Get org
-    const { data: profile } = await supabase.from("profiles").select("org_id").eq("id", user.id).single();
-    if (!profile) return new Response(JSON.stringify({ error: "No organization found" }), { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
     // Parse body
     const body = await req.json();
@@ -173,9 +216,9 @@ Deno.serve(async (req: Request) => {
 
     const duration = Math.round(performance.now() - start);
 
-    // Log to transform_logs (using service role via RPC would be ideal, but for now use the user's context)
+    // Log to transform_logs using service role
     const logData = {
-      org_id: profile.org_id,
+      org_id: auth.org_id,
       connector_id: connector_id || "00000000-0000-0000-0000-000000000000",
       source_type: provider.toLowerCase(),
       records_in: records.length,
@@ -196,7 +239,7 @@ Deno.serve(async (req: Request) => {
       data: transformed,
     }), {
       status: 200,
-      headers: { ...corsHeaders, "Content-Type": "application/json", "X-ClareMesh-Schema": "1.0.0", "X-ClareMesh-Duration": `${duration}ms` },
+      headers: { ...corsHeaders, "Content-Type": "application/json", "X-ClareMesh-Schema": "1.0.0", "X-ClareMesh-Duration": `${duration}ms`, "X-ClareMesh-Auth": auth.auth_method },
     });
 
   } catch (err) {

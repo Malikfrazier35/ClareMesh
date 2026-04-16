@@ -1,5 +1,5 @@
 "use client";
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import AuthGate from "@/components/AuthGate";
 import AppShell from "@/components/AppShell";
 import DangerZone from "@/components/DangerZone";
@@ -199,44 +199,75 @@ function ApiKeysTab({ profile, org }: { profile: UserProfile; org: Organization 
   const [newKeyName, setNewKeyName] = useState("");
   const [generatedKey, setGeneratedKey] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [listLoading, setListLoading] = useState(true);
+  const [err, setErr] = useState<string | null>(null);
   const isAdmin = canManageApiKeys(profile.role);
   const canUse = canUseApiKeys(org.plan);
 
-  useState(() => {
-    supabase.from("api_keys").select("*").eq("org_id", org.id).order("created_at", { ascending: false }).then(({ data }) => { if (data) setKeys(data); });
-  });
+  const functionUrl = (path = "") =>
+    `https://ddevkorgiutduydelhgv.supabase.co/functions/v1/api-keys${path}`;
+
+  const authHeaders = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    return {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${session?.access_token ?? ""}`,
+    };
+  };
+
+  const loadKeys = async () => {
+    setListLoading(true);
+    try {
+      const res = await fetch(functionUrl(), { headers: await authHeaders() });
+      const body = await res.json();
+      if (res.ok) setKeys(body.keys || []);
+      else setErr(body.error || "Failed to load keys");
+    } catch (e: any) {
+      setErr(e.message);
+    }
+    setListLoading(false);
+  };
+
+  // Load keys once on mount
+  useEffect(() => { loadKeys(); }, []);
 
   const handleGenerate = async () => {
     if (!newKeyName) return;
     setLoading(true);
-    // Generate a random key
-    const raw = "cm_" + Array.from(crypto.getRandomValues(new Uint8Array(24)), (b) => b.toString(16).padStart(2, "0")).join("");
-    const prefix = raw.substring(0, 10);
-    // Hash the key for storage
-    const encoder = new TextEncoder();
-    const data = encoder.encode(raw);
-    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hash = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
-
-    const { error } = await supabase.from("api_keys").insert({
-      org_id: org.id, key_prefix: prefix, key_hash: hash, key_type: "live", name: newKeyName,
-    });
-
-    if (error) { alert("Failed: " + error.message); setLoading(false); return; }
-    setGeneratedKey(raw);
-    setNewKeyName("");
+    setErr(null);
+    try {
+      const res = await fetch(functionUrl(), {
+        method: "POST",
+        headers: await authHeaders(),
+        body: JSON.stringify({ name: newKeyName, scopes: ["transform:read", "transform:write"] }),
+      });
+      const body = await res.json();
+      if (!res.ok) { setErr(body.error || "Failed to generate key"); setLoading(false); return; }
+      setGeneratedKey(body.key);
+      setNewKeyName("");
+      await loadKeys();
+    } catch (e: any) {
+      setErr(e.message);
+    }
     setLoading(false);
-    // Refresh keys
-    const { data: updated } = await supabase.from("api_keys").select("*").eq("org_id", org.id).order("created_at", { ascending: false });
-    if (updated) setKeys(updated);
   };
 
   const handleRevoke = async (keyId: string) => {
-    if (!confirm("Revoke this API key? This cannot be undone.")) return;
-    await supabase.from("api_keys").update({ revoked_at: new Date().toISOString() }).eq("id", keyId);
-    const { data } = await supabase.from("api_keys").select("*").eq("org_id", org.id).order("created_at", { ascending: false });
-    if (data) setKeys(data);
+    if (!confirm("Revoke this API key? Any integration using it will stop working. This cannot be undone.")) return;
+    try {
+      const res = await fetch(functionUrl(`/${keyId}`), {
+        method: "DELETE",
+        headers: await authHeaders(),
+      });
+      if (!res.ok) {
+        const body = await res.json();
+        setErr(body.error || "Failed to revoke");
+        return;
+      }
+      await loadKeys();
+    } catch (e: any) {
+      setErr(e.message);
+    }
   };
 
   if (!canUse) {
@@ -250,11 +281,16 @@ function ApiKeysTab({ profile, org }: { profile: UserProfile; org: Organization 
 
   return (
     <div>
-      <h2 style={{ fontFamily: F.d, fontWeight: 700, fontSize: 18, color: "var(--cm-text-panel-h)", marginBottom: 20 }}>API keys</h2>
+      <h2 style={{ fontFamily: F.d, fontWeight: 700, fontSize: 18, color: "var(--cm-text-panel-h)", marginBottom: 6 }}>API keys</h2>
+      <p style={{ fontSize: 13, color: "var(--cm-text-dim)", marginBottom: 20 }}>Use these keys to authenticate API requests. Pass as <code style={{ fontFamily: F.m, fontSize: 12, padding: "2px 6px", background: "var(--cm-terminal)", border: "0.5px solid var(--cm-border-light)" }}>Authorization: Bearer cm_live_...</code></p>
+
+      {err && (
+        <div style={{ padding: "10px 14px", border: "0.5px solid #E24B4A", background: "rgba(226,75,74,0.04)", marginBottom: 16, fontSize: 12, color: "#E24B4A" }}>{err}</div>
+      )}
 
       {generatedKey && (
         <div style={{ padding: "16px", border: "0.5px solid #1D9E75", background: "rgba(29,158,117,0.04)", marginBottom: 20 }}>
-          <p style={{ fontSize: 12, fontWeight: 500, color: "#1D9E75", marginBottom: 8 }}>API key generated. Copy it now — you won't see it again.</p>
+          <p style={{ fontSize: 12, fontWeight: 500, color: "#1D9E75", marginBottom: 8 }}>API key generated. Copy it now — you won&apos;t see it again.</p>
           <div style={{ fontFamily: F.m, fontSize: 13, padding: "10px 14px", background: "var(--cm-terminal)", border: "0.5px solid var(--cm-border-light)", wordBreak: "break-all", userSelect: "all" }}>{generatedKey}</div>
           <button onClick={() => { navigator.clipboard.writeText(generatedKey); setGeneratedKey(null); }} style={{ marginTop: 8, padding: "6px 16px", fontSize: 12, fontFamily: F.d, fontWeight: 500, color: "#fff", background: "var(--cm-slate)", border: "none", cursor: "pointer" }}>Copy and dismiss</button>
         </div>
@@ -263,37 +299,50 @@ function ApiKeysTab({ profile, org }: { profile: UserProfile; org: Organization 
       {isAdmin && (
         <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
           <input type="text" value={newKeyName} onChange={(e) => setNewKeyName(e.target.value)} placeholder="Key name (e.g. Production)" style={{ ...inputStyle, flex: 1 }} />
-          <button onClick={handleGenerate} disabled={loading} style={{ padding: "10px 20px", fontSize: 13, fontFamily: F.d, fontWeight: 500, color: "#fff", background: "var(--cm-slate)", border: "none", cursor: "pointer", whiteSpace: "nowrap" }}>
-            Generate key
+          <button onClick={handleGenerate} disabled={loading || !newKeyName} style={{ padding: "10px 20px", fontSize: 13, fontFamily: F.d, fontWeight: 500, color: "#fff", background: loading || !newKeyName ? "var(--cm-text-dim)" : "var(--cm-slate)", border: "none", cursor: loading || !newKeyName ? "not-allowed" : "pointer", whiteSpace: "nowrap" }}>
+            {loading ? "Generating..." : "Generate key"}
           </button>
         </div>
       )}
 
       <div style={{ border: "0.5px solid var(--cm-border-light)" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 120px 100px 80px", padding: "8px 14px", background: "var(--cm-terminal)", borderBottom: "0.5px solid var(--cm-border-light)" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1.2fr 120px 1fr 110px 80px", padding: "8px 14px", background: "var(--cm-terminal)", borderBottom: "0.5px solid var(--cm-border-light)" }}>
           <span style={{ fontFamily: F.m, fontSize: 10, letterSpacing: 1, color: "var(--cm-text-dim)" }}>NAME</span>
           <span style={{ fontFamily: F.m, fontSize: 10, letterSpacing: 1, color: "var(--cm-text-dim)" }}>PREFIX</span>
-          <span style={{ fontFamily: F.m, fontSize: 10, letterSpacing: 1, color: "var(--cm-text-dim)" }}>CREATED</span>
+          <span style={{ fontFamily: F.m, fontSize: 10, letterSpacing: 1, color: "var(--cm-text-dim)" }}>SCOPES</span>
+          <span style={{ fontFamily: F.m, fontSize: 10, letterSpacing: 1, color: "var(--cm-text-dim)" }}>LAST USED</span>
           <span style={{ fontFamily: F.m, fontSize: 10, letterSpacing: 1, color: "var(--cm-text-dim)" }}>STATUS</span>
         </div>
-        {keys.length === 0 ? (
+        {listLoading ? (
+          <div style={{ padding: "20px 14px", textAlign: "center", fontSize: 13, color: "var(--cm-text-dim)" }}>Loading...</div>
+        ) : keys.length === 0 ? (
           <div style={{ padding: "20px 14px", textAlign: "center", fontSize: 13, color: "var(--cm-text-dim)" }}>No API keys yet.</div>
-        ) : keys.map((k) => (
-          <div key={k.id} style={{ display: "grid", gridTemplateColumns: "1fr 120px 100px 80px", padding: "10px 14px", borderBottom: "0.5px solid var(--cm-border-light)", alignItems: "center" }}>
-            <span style={{ fontSize: 13, color: "var(--cm-text-panel-h)" }}>{k.name || "Unnamed"}</span>
-            <span style={{ fontFamily: F.m, fontSize: 11, color: "var(--cm-text-panel-b)" }}>{k.key_prefix}...</span>
-            <span style={{ fontFamily: F.m, fontSize: 11, color: "var(--cm-text-dim)" }}>{new Date(k.created_at).toLocaleDateString()}</span>
-            {k.revoked_at ? (
-              <span style={{ fontFamily: F.m, fontSize: 10, color: "#E24B4A" }}>Revoked</span>
-            ) : (
-              isAdmin ? (
-                <button onClick={() => handleRevoke(k.id)} style={{ fontFamily: F.m, fontSize: 10, color: "#E24B4A", background: "none", border: "none", cursor: "pointer", textDecoration: "underline" }}>Revoke</button>
+        ) : keys.map((k) => {
+          const expired = k.expires_at && new Date(k.expires_at) < new Date();
+          const scopes: string[] = Array.isArray(k.scopes) ? k.scopes : [];
+          return (
+            <div key={k.id} style={{ display: "grid", gridTemplateColumns: "1.2fr 120px 1fr 110px 80px", padding: "10px 14px", borderBottom: "0.5px solid var(--cm-border-light)", alignItems: "center" }}>
+              <div>
+                <div style={{ fontSize: 13, color: "var(--cm-text-panel-h)" }}>{k.name || "Unnamed"}</div>
+                <div style={{ fontFamily: F.m, fontSize: 10, color: "var(--cm-text-dim)", marginTop: 2 }}>Created {new Date(k.created_at).toLocaleDateString()}{k.expires_at && ` · Expires ${new Date(k.expires_at).toLocaleDateString()}`}</div>
+              </div>
+              <span style={{ fontFamily: F.m, fontSize: 11, color: "var(--cm-text-panel-b)" }}>{k.key_prefix}...</span>
+              <span style={{ fontFamily: F.m, fontSize: 10, color: "var(--cm-text-panel-b)" }}>{scopes.length > 0 ? scopes.map(s => s.replace("transform:", "tx:")).join(", ") : "none"}</span>
+              <span style={{ fontFamily: F.m, fontSize: 11, color: "var(--cm-text-dim)" }}>{k.last_used_at ? new Date(k.last_used_at).toLocaleDateString() : "Never"}</span>
+              {k.revoked_at ? (
+                <span style={{ fontFamily: F.m, fontSize: 10, color: "#E24B4A" }}>Revoked</span>
+              ) : expired ? (
+                <span style={{ fontFamily: F.m, fontSize: 10, color: "#C4884A" }}>Expired</span>
               ) : (
-                <span style={{ fontFamily: F.m, fontSize: 10, color: "#1D9E75" }}>Active</span>
-              )
-            )}
-          </div>
-        ))}
+                isAdmin ? (
+                  <button onClick={() => handleRevoke(k.id)} style={{ fontFamily: F.m, fontSize: 10, color: "#E24B4A", background: "none", border: "none", cursor: "pointer", textDecoration: "underline", textAlign: "left", padding: 0 }}>Revoke</button>
+                ) : (
+                  <span style={{ fontFamily: F.m, fontSize: 10, color: "#1D9E75" }}>Active</span>
+                )
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {!isAdmin && <p style={{ fontSize: 12, color: "var(--cm-text-dim)", marginTop: 12 }}>Only owners and admins can create or revoke API keys.</p>}
