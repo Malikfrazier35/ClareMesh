@@ -44,7 +44,8 @@ function SyncContent() {
   const isScale = plan === "scale" || plan === "enterprise";
 
   return (
-    <AppShell>
+    <AuthGate>{({ profile, org }) => (
+    <AppShell profile={profile} org={org} activePage="sync">
       <div style={{ padding: "24px 32px", maxWidth: 960 }}>
         <h1 style={{ fontFamily: F.d, fontWeight: 700, fontSize: 20, letterSpacing: -0.5, color: "var(--cm-text-panel-h)", marginBottom: 4 }}>Sync</h1>
         <p style={{ fontSize: 12, color: "var(--cm-text-panel-b)", marginBottom: 24 }}>Bi-directional data synchronization between connectors</p>
@@ -101,6 +102,7 @@ function SyncContent() {
         )}
       </div>
     </AppShell>
+    )}}</AuthGate>
   );
 }
 

@@ -43,7 +43,8 @@ function TransformsContent() {
   const avgMs = logs.length > 0 ? Math.round(logs.reduce((s, l) => s + (l.duration_ms || 0), 0) / logs.length) : 0;
 
   return (
-    <AppShell>
+    <AuthGate>{({ profile, org }) => (
+    <AppShell profile={profile} org={org} activePage="transforms">
       <div style={{ padding: "24px 32px", maxWidth: 960 }}>
         <h1 style={{ fontFamily: F.d, fontWeight: 700, fontSize: 20, letterSpacing: -0.5, color: "var(--cm-text-panel-h)", marginBottom: 4 }}>Transforms</h1>
         <p style={{ fontSize: 12, color: "var(--cm-text-panel-b)", marginBottom: 24 }}>Transform execution log — every normalization recorded</p>
@@ -112,6 +113,7 @@ function TransformsContent() {
         )}
       </div>
     </AppShell>
+    )}}</AuthGate>
   );
 }
 

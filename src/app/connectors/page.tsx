@@ -43,7 +43,8 @@ function ConnectorsContent() {
   }, []);
 
   return (
-    <AppShell>
+    <AuthGate>{({ profile, org }) => (
+    <AppShell profile={profile} org={org} activePage="connectors">
       <div style={{ padding: "24px 32px", maxWidth: 960 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 24 }}>
           <div>
@@ -105,6 +106,7 @@ function ConnectorsContent() {
         )}
       </div>
     </AppShell>
+    )}}</AuthGate>
   );
 }
 
