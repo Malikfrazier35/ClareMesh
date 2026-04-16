@@ -57,7 +57,7 @@ function LoginContent() {
         user_id: data.user.id,
         login_method: "password",
         success: true,
-      }).catch(() => {});
+      });
     }
 
     // Check onboarding status
