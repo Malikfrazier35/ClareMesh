@@ -1,4 +1,6 @@
 "use client";
+import AuthGate from "@/components/AuthGate";
+import AppShellNew from "@/components/AppShell";
 import { useState, useEffect, Suspense } from "react";
 import { createClient } from "@supabase/supabase-js";
 import AppShell from "@/components/AppShell";
