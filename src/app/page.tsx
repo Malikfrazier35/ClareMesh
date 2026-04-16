@@ -76,7 +76,7 @@ export default function Home() {
       <div ref={r} style={{ position: "relative", zIndex: 1, fontFamily: F.b }}>
 
         {/* DARK HERO */}
-        <div style={{ background: "var(--cm-hero)", position: "relative", overflow: "hidden" }}>
+        <div style={{ background: "rgba(20,19,18,0.6)", backdropFilter: "blur(20px) saturate(1.3)", WebkitBackdropFilter: "blur(20px) saturate(1.3)", position: "relative", overflow: "hidden" }}>
           <div className="cm-scan" style={{ position:"absolute",left:0,right:0,height:1,background:`linear-gradient(90deg,transparent,rgba(79,109,122,var(--cm-scan-op)),transparent)`,pointerEvents:"none",zIndex:3 }}/>
           <svg style={{ position:"absolute",inset:0,width:"100%",height:"100%",opacity:"var(--cm-grid-op)",pointerEvents:"none" }}>
             <defs><pattern id="dg" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0L0 0 0 40" fill="none" stroke="var(--cm-slate)" strokeWidth="0.5"/></pattern></defs>
@@ -107,7 +107,7 @@ export default function Home() {
             <div className="cm-acc" style={{ height:2,background:"var(--cm-copper)",width:40,marginBottom:20 }}/>
             <h1 className="cm-a3" style={{ fontFamily:F.d,fontWeight:700,fontSize:"clamp(44px,5.5vw,64px)",letterSpacing:-2,lineHeight:1.02,marginBottom:18,color:"var(--cm-text-hero-h)" }}>Clarity through<br/>connection</h1>
             <p className="cm-a4" style={{ fontSize:15,lineHeight:1.7,color:"var(--cm-text-hero-b)",maxWidth:400,marginBottom:28 }}>An open-source financial data schema and bi-directional sync SDK. Runs on your infrastructure. Your data never leaves.</p>
-            <div className="cm-a5" style={{ background:"var(--cm-terminal)",border:`0.5px solid var(--cm-terminal-bd)`,padding:"14px 16px",marginBottom:24 }}>
+            <div className="cm-a5" style={{ background: "rgba(30,29,27,0.75)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",border:`0.5px solid var(--cm-terminal-bd)`,padding:"14px 16px",marginBottom:24 }}>
               <div style={m({ fontSize:9,color:"var(--cm-footer-c)",marginBottom:6 })}>~/claremesh</div>
               <div style={m({ fontSize:12,color:"var(--cm-text-hero-h)" })}><span style={{ color:"var(--cm-slate)" }}>$</span> npm install @claremesh/schema @claremesh/transforms<span className="cm-blink" style={{ display:"inline-block",width:7,height:13,background:"var(--cm-slate)",marginLeft:3,verticalAlign:"text-bottom" }}/></div>
             </div>
@@ -257,7 +257,7 @@ export default function Home() {
         {gap}
 
         {/* DARK COMPLIANCE */}
-        <div style={{ background:"var(--cm-hero)",padding:"64px 32px",color:"var(--cm-text-hero-h)",position:"relative",zIndex:2 }}>
+        <div style={{ background: "rgba(20,19,18,0.6)", backdropFilter: "blur(20px) saturate(1.3)", WebkitBackdropFilter: "blur(20px) saturate(1.3)",padding:"64px 32px",color:"var(--cm-text-hero-h)",position:"relative",zIndex:2 }}>
           <div className="cm-rv" style={{ maxWidth:600,margin:"0 auto",textAlign:"center" }}>
             <p style={m({ fontSize:10,letterSpacing:2.5,color:"var(--cm-slate)",marginBottom:8 })}>COMPLIANCE</p>
             <h2 style={{ fontFamily:F.d,fontWeight:700,fontSize:28,letterSpacing:-.5,marginBottom:14,color:"var(--cm-text-hero-h)" }}>61 controls. Zero egress.</h2>
@@ -278,7 +278,7 @@ export default function Home() {
         </div>
 
         {/* FOOTER */}
-        <footer style={{ background:"var(--cm-hero)",borderTop:bdd,position:"relative",zIndex:2 }}>
+        <footer style={{ background: "rgba(20,19,18,0.6)", backdropFilter: "blur(20px) saturate(1.3)", WebkitBackdropFilter: "blur(20px) saturate(1.3)",borderTop:bdd,position:"relative",zIndex:2 }}>
           <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",borderBottom:bdd }}>
             {[{t:"PRODUCT",ls:["Schema","Transforms","Sync","Pricing","Changelog"]},{t:"DEVELOPERS",ls:["Documentation","API reference","Quickstart","Status"]},{t:"COMPANY",ls:["About","Blog","Security","Contact"]},{t:"LEGAL",ls:["Privacy","Terms","DPA","Sub-processors"]}].map((col,i)=>(
               <div key={i} style={{ padding:32,borderRight:i<3?bdd:"none" }}>
