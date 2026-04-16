@@ -2,6 +2,7 @@
 import { useState, Suspense } from "react";
 import AuthGate from "@/components/AuthGate";
 import AppShell from "@/components/AppShell";
+import DangerZone from "@/components/DangerZone";
 import { supabase, canManageBilling, canManageTeam, canManageApiKeys, canUseApiKeys, UserProfile, Organization } from "@/lib/auth";
 
 const F = {
@@ -12,7 +13,7 @@ const F = {
 
 const inputStyle = { width: "100%", padding: "10px 14px", fontSize: 14, fontFamily: "'DM Sans',system-ui,sans-serif", border: "0.5px solid var(--cm-border-light)", background: "var(--cm-terminal)", color: "var(--cm-text-panel-h)", outline: "none", boxSizing: "border-box" as const };
 
-function GeneralTab({ profile }: { profile: UserProfile }) {
+function GeneralTab({ profile, org }: { profile: UserProfile; org: Organization }) {
   const [displayName, setDisplayName] = useState(profile.display_name || "");
   const [saved, setSaved] = useState(false);
   const [currentPw, setCurrentPw] = useState("");
@@ -79,6 +80,8 @@ function GeneralTab({ profile }: { profile: UserProfile }) {
           Update password
         </button>
       </div>
+
+      <DangerZone profile={profile} org={org} />
 
       {profile.last_password_changed_at && (
         <p style={{ fontSize: 11, fontFamily: F.m, color: "var(--cm-text-dim)", marginTop: 12 }}>
@@ -324,7 +327,7 @@ function SettingsContent() {
               ))}
             </div>
 
-            {activeTab === "general" && <GeneralTab profile={profile} />}
+            {activeTab === "general" && <GeneralTab profile={profile} org={org} />}
             {activeTab === "team" && <TeamTab profile={profile} org={org} />}
             {activeTab === "billing" && <BillingTab profile={profile} org={org} />}
             {activeTab === "api-keys" && <ApiKeysTab profile={profile} org={org} />}
