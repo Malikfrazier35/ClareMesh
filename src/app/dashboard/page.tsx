@@ -50,7 +50,7 @@ function DashboardContent() {
       if (!user) { window.location.href = "/login"; return; }
 
       const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single();
-      if (!profile) { window.location.href = "/onboarding"; return; }
+      if (!profile || !profile.onboarding_completed) { window.location.href = "/onboarding"; return; }
 
       const orgId = profile.org_id;
 

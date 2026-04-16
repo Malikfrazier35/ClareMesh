@@ -20,15 +20,15 @@ function LoginForm(){
       </div>
       <div style={{background:"var(--cm-panel)",padding:"48px 40px",display:"flex",flexDirection:"column",justifyContent:"center",maxWidth:440,margin:"0 auto",width:"100%"}}>
         <h1 style={{fontFamily:F.d,fontWeight:700,fontSize:24,letterSpacing:-.5,marginBottom:24,color:"var(--cm-text-panel-h)"}}>Sign in</h1>
-        {error&&<div style={{padding:"10px 14px",marginBottom:16,background:"var(--cm-panel-inset)",border:"0.5px solid var(--cm-border-light)",fontSize:13,color:"#A32D2D"}}>{error}</div>}
+        {error&&}
         <form onSubmit={handleLogin}>
           <div style={{marginBottom:14}}><label style={{fontSize:12,color:"var(--cm-text-panel-b)",display:"block",marginBottom:5}}>Email</label><input type="email" required value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@company.com" style={input}/></div>
           <div style={{marginBottom:20}}><label style={{fontSize:12,color:"var(--cm-text-panel-b)",display:"block",marginBottom:5}}>Password</label><input type="password" required value={password} onChange={e=>setPassword(e.target.value)} placeholder="Your password" style={input}/></div>
           <button type="submit" disabled={loading} className="cm-bp" style={{width:"100%",padding:14,fontSize:14,fontWeight:500,fontFamily:F.b,color:"var(--cm-cta-panel-c)",background:"var(--cm-cta-panel-bg)",border:"var(--cm-cta-panel-bd)",cursor:loading?"wait":"pointer",opacity:loading?.7:1}}>{loading?"Signing in...":"Sign in"}</button>
         </form>
-        <div style={{display:"flex",alignItems:"center",gap:12,margin:"16px 0"}}><div style={{flex:1,height:"0.5px",background:"var(--cm-border-light)"}}/><span style={{fontSize:12,color:"var(--cm-text-dim)"}}>or</span><div style={{flex:1,height:"0.5px",background:"var(--cm-border-light)"}}/></div>
+        <div style={{display:"flex",alignItems:"center",gap:12,margin:"16px 0"}}><div style={{flex:1,height:"0.5px",background:"var(--cm-border-light)"}}/><div style={{flex:1,height:"0.5px",background:"var(--cm-border-light)"}}/></div>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:16}}>
-          <button type="button" onClick={()=>handleOAuth("google")} className="cm-bg" style={{padding:12,fontSize:13,fontFamily:F.b,border:"0.5px solid var(--cm-border-light)",background:"var(--cm-panel)",color:"var(--cm-text-panel-h)",cursor:"pointer"}}>Google</button>
+          
           <button type="button" onClick={()=>handleOAuth("github")} className="cm-bg" style={{padding:12,fontSize:13,fontFamily:F.b,border:"0.5px solid var(--cm-border-light)",background:"var(--cm-panel)",color:"var(--cm-text-panel-h)",cursor:"pointer"}}>GitHub</button>
         </div>
         <div style={{display:"flex",justifyContent:"space-between",fontSize:12}}>

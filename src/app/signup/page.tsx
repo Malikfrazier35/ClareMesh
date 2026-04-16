@@ -29,9 +29,9 @@ function SignupForm(){
           <div style={{marginBottom:24}}><label style={{fontSize:12,color:"var(--cm-text-panel-b)",display:"block",marginBottom:5}}>Organization name</label><input type="text" value={orgName} onChange={e=>setOrgName(e.target.value)} placeholder="Your company name" style={input}/></div>
           <button type="submit" disabled={loading} className="cm-bp" style={{width:"100%",padding:14,fontSize:14,fontWeight:500,fontFamily:F.b,color:"var(--cm-cta-panel-c)",background:"var(--cm-cta-panel-bg)",border:"var(--cm-cta-panel-bd)",cursor:loading?"wait":"pointer",opacity:loading?.7:1}}>{loading?"Creating account...":"Create account"}</button>
         </form>
-        <div style={{display:"flex",alignItems:"center",gap:12,margin:"16px 0"}}><div style={{flex:1,height:"0.5px",background:"var(--cm-border-light)"}}/><span style={{fontSize:12,color:"var(--cm-text-dim)"}}>or</span><div style={{flex:1,height:"0.5px",background:"var(--cm-border-light)"}}/></div>
+        <div style={{display:"flex",alignItems:"center",gap:12,margin:"16px 0"}}><div style={{flex:1,height:"0.5px",background:"var(--cm-border-light)"}}/><div style={{flex:1,height:"0.5px",background:"var(--cm-border-light)"}}/></div>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:20}}>
-          <button type="button" onClick={()=>handleOAuth("google")} className="cm-bg" style={{padding:12,fontSize:13,fontFamily:F.b,border:"0.5px solid var(--cm-border-light)",background:"var(--cm-panel)",color:"var(--cm-text-panel-h)",cursor:"pointer"}}>Google</button>
+          
           <button type="button" onClick={()=>handleOAuth("github")} className="cm-bg" style={{padding:12,fontSize:13,fontFamily:F.b,border:"0.5px solid var(--cm-border-light)",background:"var(--cm-panel)",color:"var(--cm-text-panel-h)",cursor:"pointer"}}>GitHub</button>
         </div>
         <p style={{fontSize:12,color:"var(--cm-text-dim)",textAlign:"center"}}>Already have an account? <a href="/login" style={{color:"var(--cm-slate)",fontWeight:500,textDecoration:"none"}}>Sign in</a></p>
