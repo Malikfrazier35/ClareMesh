@@ -24,5 +24,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: 'https://claremesh.com/security/sub-processors', lastModified: new Date(), changeFrequency: 'monthly', priority: 0.7 },
     { url: 'https://claremesh.com/security/vulnerability-disclosure', lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
 
+    { url: 'https://claremesh.com/playground', lastModified: new Date(), changeFrequency: 'weekly', priority: 0.9 },
   ];
 }

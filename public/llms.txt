@@ -90,6 +90,7 @@ Customer data never transits ClareMesh-controlled infrastructure. Edge functions
 - GitHub: https://github.com/Malikfrazier35/ClareMesh
 - npm schema package: https://www.npmjs.com/package/@claremesh/schema
 - npm transforms package: https://www.npmjs.com/package/@claremesh/transforms
+- Interactive playground: https://claremesh.com/playground (paste raw provider JSON, see normalized output in real-time, no signup required)
 - Sign up: https://claremesh.com/signup
 
 ## Suite context
