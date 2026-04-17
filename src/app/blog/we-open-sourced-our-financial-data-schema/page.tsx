@@ -65,7 +65,7 @@ function ManifestoPost() {
           That's when we extracted the normalization layer, cleaned it up, published it under MIT, and called it <a href="https://claremesh.com" style={LINK}>ClareMesh</a>.
         </p>
         <p style={P}>
-          This post explains why we open-sourced it rather than keeping it as proprietary infrastructure for our own suite, and why we think more fintech infrastructure should follow the same pattern.
+          This post explains why we open-sourced it rather than keeping it as proprietary infrastructure, and why we think more fintech infrastructure should follow the same pattern.
         </p>
 
         <h2 style={H2}>The closed-source era of fintech data</h2>
@@ -217,7 +217,7 @@ function ManifestoPost() {
             <a href="/pricing" style={{ color: "var(--cm-slate)", textDecoration: "none", fontWeight: 500 }}>Pricing →</a>
           </div>
           <p style={{ fontSize: 12, color: "var(--cm-text-panel-b)", lineHeight: 1.6, marginBottom: 12 }}>
-            ClareMesh is the data infrastructure layer of a four-product suite: <strong>ClareMesh</strong> (normalization), <strong><a href="https://vaultline.app" style={{ color: "var(--cm-slate)", textDecoration: "none" }}>Vaultline</a></strong> (treasury), <strong><a href="https://castford.com" style={{ color: "var(--cm-slate)", textDecoration: "none" }}>Castford</a></strong> (FP&A), and <strong><a href="https://ashfordledger.com" style={{ color: "var(--cm-slate)", textDecoration: "none" }}>Ashford Ledger</a></strong> (month-end close).
+            ClareMesh was originally built as the data infrastructure layer of a broader internal system. We extracted it, open-sourced the schema, and published the transforms because a shared data model is more valuable as a standard than as proprietary plumbing.
           </p>
           <p style={{ fontSize: 12, color: "var(--cm-text-dim)" }}>
             Questions or corrections? Email <a href="mailto:malik@claremesh.com" style={{ color: "var(--cm-slate)" }}>malik@claremesh.com</a>.

@@ -169,28 +169,6 @@ export default function Home() {
 
         {gap}
 
-        {/* SUITE */}
-        <div style={panel}>
-          <section className="cm-rv">
-            <div style={{ padding:"56px 32px 16px",textAlign:"center",borderTop:bd }}>
-              <p style={m({ fontSize:10,letterSpacing:2.5,color:"var(--cm-text-dim)",textAlign:"center",marginBottom:8 })}>SUITE INTEGRATION</p>
-              <h2 style={{ fontFamily:F.d,fontWeight:700,fontSize:28,textAlign:"center",letterSpacing:-.5,marginBottom:12,color:"var(--cm-text-panel-h)" }}>One pipe. Three products.</h2>
-            </div>
-            <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr 1fr",borderTop:bd,borderBottom:bd }}>
-              {[{n:"Vaultline",ro:"Treasury",rd:"Cash, balances, projections",wr:"Alert rules, scenarios",bc:"var(--cm-suite-vl)"},{n:"Castford",ro:"FP&A",rd:"P&L, variance, budgets",wr:"Forecasts, board packages",bc:"var(--cm-suite-cf)"},{n:"Ashford Ledger",ro:"Month-end close",rd:"GL, transactions, entities",wr:"Reconciliation, journal entries",bc:"var(--cm-suite-al)"}].map((p,i)=>(
-                <div key={i} className="cm-cell" style={{ padding:32,borderRight:i<2?bd:"none",borderLeft:`2px solid ${p.bc}` }}>
-                  <p style={{ fontFamily:F.d,fontWeight:700,fontSize:15,marginBottom:2,color:"var(--cm-text-panel-h)" }}>{p.n}</p>
-                  <p style={m({ fontSize:10,color:"var(--cm-slate)",marginBottom:16 })}>{p.ro}</p>
-                  <p style={{ fontSize:12,color:"var(--cm-text-panel-b)",marginBottom:6 }}><span style={m({ fontSize:10,color:"var(--cm-text-dim)",marginRight:6 })}>READS</span>{p.rd}</p>
-                  <p style={{ fontSize:12,color:"var(--cm-text-panel-b)" }}><span style={m({ fontSize:10,color:"var(--cm-text-dim)",marginRight:6 })}>WRITES</span>{p.wr}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-        </div>
-
-        {gap}
-
         {/* CODE */}
         <div style={panel}>
           <section className="cm-rv" style={{ borderTop:bd,borderBottom:bd,padding:"64px 32px" }}>

@@ -80,7 +80,7 @@ function LoyaltyContent() {
             { name: "Founding customers", desc: "First 25 paying customers. Lifetime price lock, +25K transforms, +3 connectors, +5 seats, direct founder access.", badge: "FOUNDING" },
             { name: "Early adopters", desc: "Joined in the first 6 months. Price lock, +10K transforms, +2 connectors, beta feature access.", badge: "EARLY" },
             { name: "Community contributors", desc: "Merged a PR to our open-source repos. +5K transforms, +1 connector, custom transforms unlocked. Always open.", badge: "CONTRIB" },
-            { name: "General", desc: "All customers. Full milestone track. Suite discounts. Loyalty score. Every customer matters.", badge: "GENERAL" },
+            { name: "General", desc: "All customers. Full milestone track. Tier discounts. Loyalty score. Every customer matters.", badge: "GENERAL" },
           ].map((c) => (
             <div key={c.name} style={{ padding: 16, border: "0.5px solid var(--cm-border-light)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>

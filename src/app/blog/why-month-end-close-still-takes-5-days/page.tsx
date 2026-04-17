@@ -256,10 +256,10 @@ function MonthEndPost() {
           This is what we built <a href="https://claremesh.com" style={LINK}>ClareMesh</a> for. It publishes an open-source schema covering the five financial primitives — Account, Transaction, Entity, Balance, Forecast — and transforms raw API data from Plaid, Stripe, QuickBooks, Xero, and NetSuite into that schema. Every transaction that flows through ClareMesh carries source attribution, schema version, and a full lineage record. The schema is MIT licensed; the transforms are MIT licensed; the sync layer runs on your own infrastructure so customer data never leaves your servers.
         </p>
         <p style={P}>
-          ClareMesh by itself doesn't give you a one-day close. It gives you the foundation on which a one-day close becomes feasible. The close workflow that sits on top — the reconciliation engine, the review queue, the exception manager — is <a href="https://ashfordledger.com" style={LINK}>Ashford Ledger</a>, which reads the ClareMesh schema natively.
+          ClareMesh by itself doesn't give you a one-day close. It gives you the foundation on which a one-day close becomes feasible. The close workflow that sits on top — the reconciliation engine, the review queue, the exception manager — consumes the ClareMesh schema directly, so every tool that reads from it sees the same canonical data.
         </p>
         <p style={P}>
-          Together they represent the bet that close time is a data problem before it is a workflow problem.
+          The underlying bet is that close time is a data problem before it is a workflow problem.
         </p>
 
         <h2 style={H2}>For the finance leader reading this</h2>
@@ -282,16 +282,14 @@ function MonthEndPost() {
 
         {/* Footer CTA */}
         <div style={{ marginTop: 64, padding: "32px", border: "0.5px solid var(--cm-border-light)", background: "var(--cm-terminal)" }}>
-          <p style={{ fontFamily: F.m, fontSize: 10, letterSpacing: 1.5, color: "var(--cm-copper)", marginBottom: 12 }}>THE CLAREMESH SUITE</p>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
-            <a href="https://claremesh.com" style={{ color: "var(--cm-text-panel-h)", textDecoration: "none", fontSize: 13 }}><strong>ClareMesh</strong> — open-source financial data schema and bi-directional sync SDK</a>
-            <a href="https://vaultline.app" style={{ color: "var(--cm-text-panel-h)", textDecoration: "none", fontSize: 13 }}><strong>Vaultline</strong> — AI-powered treasury management</a>
-            <a href="https://castford.com" style={{ color: "var(--cm-text-panel-h)", textDecoration: "none", fontSize: 13 }}><strong>Castford</strong> — AI-native FP&A</a>
-            <a href="https://ashfordledger.com" style={{ color: "var(--cm-text-panel-h)", textDecoration: "none", fontSize: 13 }}><strong>Ashford Ledger</strong> — B2B month-end close platform</a>
-          </div>
-          <p style={{ fontSize: 12, color: "var(--cm-text-panel-b)", lineHeight: 1.6, marginBottom: 12 }}>
-            The suite shares a single normalized data model. A customer using all four products has one canonical view of their financial data flowing through every layer.
+          <p style={{ fontFamily: F.m, fontSize: 10, letterSpacing: 1.5, color: "var(--cm-copper)", marginBottom: 12 }}>TRY CLAREMESH</p>
+          <p style={{ fontSize: 13, color: "var(--cm-text-panel-h)", lineHeight: 1.6, marginBottom: 12 }}>
+            <strong>ClareMesh</strong> is an open-source financial data schema and bi-directional sync SDK. Start with the Open tier — 10,000 transforms per month, no credit card required.
           </p>
+          <div style={{ display: "flex", gap: 12, marginBottom: 16 }}>
+            <a href="/signup" style={{ display: "inline-block", padding: "10px 20px", fontSize: 13, fontFamily: F.d, fontWeight: 500, color: "#fff", background: "var(--cm-slate)", textDecoration: "none" }}>Get started free</a>
+            <a href="/playground" style={{ display: "inline-block", padding: "10px 20px", fontSize: 13, fontFamily: F.d, fontWeight: 500, color: "var(--cm-text-panel-h)", border: "0.5px solid var(--cm-border-light)", textDecoration: "none" }}>Open the playground</a>
+          </div>
           <p style={{ fontSize: 12, color: "var(--cm-text-dim)" }}>
             Questions about close acceleration? Email <a href="mailto:malik@claremesh.com" style={{ color: "var(--cm-slate)" }}>malik@claremesh.com</a>.
           </p>
